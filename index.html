@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cat3Movie Complete Collection</title>
+    <title>Cat3Movie COMPLETE 44 MOVIES</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -17,7 +17,6 @@
             margin: 0 auto;
         }
         
-        /* Header */
         .header {
             background: rgba(255,255,255,0.05);
             backdrop-filter: blur(10px);
@@ -35,7 +34,6 @@
             color: #aaa;
         }
         
-        /* Proxy Bar */
         .proxy-bar {
             display: flex;
             gap: 10px;
@@ -55,7 +53,6 @@
             background: #e94560;
         }
         
-        /* URL Bar */
         .url-bar {
             display: flex;
             gap: 10px;
@@ -81,16 +78,15 @@
             font-weight: bold;
         }
         
-        /* Main Layout */
         .main-layout {
             display: flex;
             gap: 20px;
             height: 700px;
         }
         
-        /* Left Panel - COMPLETE MOVIE LIST */
+        /* Left Panel - COMPLETE 44 MOVIES */
         .movie-panel {
-            width: 350px;
+            width: 400px;
             background: rgba(15, 52, 96, 0.5);
             backdrop-filter: blur(10px);
             border-radius: 15px;
@@ -112,35 +108,30 @@
             padding: 10px;
         }
         
-        /* Movie Items */
         .movie-item {
             background: rgba(255,255,255,0.05);
-            padding: 12px;
-            margin-bottom: 8px;
-            border-radius: 8px;
+            padding: 10px 12px;
+            margin-bottom: 5px;
+            border-radius: 5px;
             cursor: pointer;
             color: white;
+            font-size: 13px;
+            display: flex;
+            justify-content: space-between;
             transition: 0.3s;
-            border-left: 3px solid transparent;
         }
         .movie-item:hover {
             background: rgba(233, 69, 96, 0.3);
-            border-left-color: #e94560;
         }
         .movie-item.selected {
             background: rgba(233, 69, 96, 0.5);
-            border-left-color: #e94560;
-        }
-        .movie-title {
-            font-weight: bold;
-            font-size: 14px;
+            border-left: 3px solid #e94560;
         }
         .movie-year {
-            font-size: 11px;
             color: #e94560;
+            font-size: 11px;
         }
         
-        /* Center Panel */
         .browser-panel {
             flex: 2;
             background: #0f3460;
@@ -155,7 +146,6 @@
             background: white;
         }
         
-        /* Right Panel */
         .extract-panel {
             width: 350px;
             background: rgba(15, 52, 96, 0.5);
@@ -215,21 +205,23 @@
         .m3u-content {
             background: #1a1a2e;
             color: #ffd700;
-            padding: 10px;
+            padding: 15px;
             border-radius: 5px;
             font-family: monospace;
             font-size: 11px;
             word-break: break-all;
             max-height: 150px;
             overflow: auto;
+            margin-bottom: 15px;
+            white-space: pre-wrap;
         }
         
         .btn {
-            padding: 8px 15px;
+            padding: 10px 20px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 13px;
             font-weight: bold;
             margin: 5px;
         }
@@ -249,109 +241,236 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🎬 Cat3Movie COMPLETE COLLECTION</h1>
-            <p>44 Movies | Pansamantala ang una | With CORS Proxy</p>
+            <h1>🎬 Cat3Movie COMPLETE 44 MOVIES</h1>
+            <p>Buong listahan | Pansamantala #1 | Working Copy & Download</p>
         </div>
 
-        <!-- Proxy Bar -->
         <div class="proxy-bar">
             <button class="proxy-btn active" onclick="setProxy('corsproxy')">🔄 CORS Proxy</button>
             <button class="proxy-btn" onclick="setProxy('allorigins')">🌐 AllOrigins</button>
-            <button class="proxy-btn" onclick="setProxy('thingproxy')">🔧 ThingProxy</button>
         </div>
 
-        <!-- URL Bar -->
         <div class="url-bar">
             <input type="text" class="url-input" id="urlInput" readonly>
             <button class="nav-btn" onclick="extractMovie()">🔍 EXTRACT</button>
         </div>
 
-        <!-- Main Layout -->
         <div class="main-layout">
-            <!-- LEFT PANEL - COMPLETE MOVIE LIST (PANSAMANTALA UNA) -->
+            <!-- LEFT PANEL - COMPLETE 44 MOVIES -->
             <div class="movie-panel">
-                <div class="panel-header">📋 COMPLETE MOVIES (44)</div>
+                <div class="panel-header">📋 COMPLETE 44 MOVIES (1-44)</div>
                 <div class="movie-list" id="movieList">
-                    <!-- VIVAMAX 2026 -->
-                    <div class="movie-item" onclick="loadMovie('pansamantala')">🎬 1. Pansamantala (2026)</div>
-                    <div class="movie-item" onclick="loadMovie('sagaran-mov18plus-full-vivamax-adult-18-movie-online')">🎬 2. Sagaran (2026)</div>
-                    <div class="movie-item" onclick="loadMovie('foreplay')">🎬 3. Foreplay (2026)</div>
-                    <div class="movie-item" onclick="loadMovie('sirena')">🎬 4. Sirena (2026)</div>
-                    <div class="movie-item" onclick="loadMovie('patikim-ni-robb-guinto')">🎬 5. Patikim ni Robb Guinto (2026)</div>
-                    <div class="movie-item" onclick="loadMovie('bagong-tukso')">🎬 6. Bagong Tukso (2026)</div>
-                    <div class="movie-item" onclick="loadMovie('claim-me')">🎬 7. Claim Me (2026)</div>
-                    <div class="movie-item" onclick="loadMovie('sulutan')">🎬 8. Sulutan (2026)</div>
-                    <div class="movie-item" onclick="loadMovie('the-secret-of-maria-makinang')">🎬 9. The Secret of Maria Makinang (2026)</div>
-                    <div class="movie-item" onclick="loadMovie('breast-friends-forever')">🎬 10. Breast Friends Forever (2026)</div>
-                    <div class="movie-item" onclick="loadMovie('happy-ending')">🎬 11. Happy Ending (2026)</div>
-                    <div class="movie-item" onclick="loadMovie('salikmata')">🎬 12. Salikmata (2026)</div>
-                    
-                    <!-- VIVAMAX 2025 -->
-                    <div class="movie-item" onclick="loadMovie('vmx-rewind-the-best-of-vmx-2025')">🎬 13. VMX Rewind (2025)</div>
-                    <div class="movie-item" onclick="loadMovie('pagdaong')">🎬 14. Pagdaong (2025)</div>
-                    <div class="movie-item" onclick="loadMovie('aliwan-inn')">🎬 15. Aliwan Inn (2025)</div>
-                    <div class="movie-item" onclick="loadMovie('ekis')">🎬 16. Ekis (2025)</div>
-                    <div class="movie-item" onclick="loadMovie('kapag-tumayo-ang-testigo')">🎬 17. Kapag Tumayo Ang Testigo (2025)</div>
-                    <div class="movie-item" onclick="loadMovie('akin-ang-gabi')">🎬 18. Akin Ang Gabi (2025)</div>
-                    <div class="movie-item" onclick="loadMovie('balahibong-pusa')">🎬 19. Balahibong Pusa (2025)</div>
-                    <div class="movie-item" onclick="loadMovie('next-room-affair')">🎬 20. Next Room Affair (2025)</div>
-                    <div class="movie-item" onclick="loadMovie('madulas')">🎬 21. Madulas (2025)</div>
-                    <div class="movie-item" onclick="loadMovie('bigay-hilig')">🎬 22. Bigay Hilig (2025)</div>
-                    <div class="movie-item" onclick="loadMovie('nympho-vivamax')">🎬 23. Nympho (2025)</div>
-                    <div class="movie-item" onclick="loadMovie('mamasan')">🎬 24. Mamasan (2025)</div>
-                    <div class="movie-item" onclick="loadMovie('unli-pop')">🎬 25. Unli Pop (2025)</div>
-                    <div class="movie-item" onclick="loadMovie('sem-break')">🎬 26. Sem Break (2025)</div>
-                    <div class="movie-item" onclick="loadMovie('paalam-salamat')">🎬 27. Paalam, Salamat (2025)</div>
-                    <div class="movie-item" onclick="loadMovie('l-lipad')">🎬 28. L: Lipad (2025)</div>
-                    <div class="movie-item" onclick="loadMovie('basang-basa')">🎬 29. Basang Basa (2025)</div>
-                    <div class="movie-item" onclick="loadMovie('kirot')">🎬 30. Kirot (2025)</div>
-                    <div class="movie-item" onclick="loadMovie('mayumi')">🎬 31. Mayumi (2025)</div>
-                    <div class="movie-item" onclick="loadMovie('foreign-exchange')">🎬 32. Foreign Exchange (2025)</div>
-                    <div class="movie-item" onclick="loadMovie('todo-kayod')">🎬 33. Todo Kayod (2025)</div>
-                    <div class="movie-item" onclick="loadMovie('sweet-release-vivamax')">🎬 34. Sweet Release (2025)</div>
-                    <div class="movie-item" onclick="loadMovie('girl-bond-mahal-ko-ang-mahal-mo-vivamax')">🎬 35. Girl Bond (2025)</div>
-                    <div class="movie-item" onclick="loadMovie('barurot')">🎬 36. Barurot (2025)</div>
-                    <div class="movie-item" onclick="loadMovie('pasilip-ni-azi')">🎬 37. Pasilip Ni Azi (2025)</div>
-                    <div class="movie-item" onclick="loadMovie('kitty-k7')">🎬 38. Kitty K7 (2025)</div>
-                    <div class="movie-item" onclick="loadMovie('bulong-ng-laman')">🎬 39. Bulong Ng Laman (2025)</div>
-                    <div class="movie-item" onclick="loadMovie('biyak')">🎬 40. Biyak (2025)</div>
-                    
+                    <!-- VIVAMAX 2026 - 12 MOVIES -->
+                    <div class="movie-item" onclick="loadMovie('pansamantala')">
+                        <span>🎬 1. Pansamantala</span>
+                        <span class="movie-year">2026</span>
+                    </div>
+                    <div class="movie-item" onclick="loadMovie('sagaran-mov18plus-full-vivamax-adult-18-movie-online')">
+                        <span>🎬 2. Sagaran</span>
+                        <span class="movie-year">2026</span>
+                    </div>
+                    <div class="movie-item" onclick="loadMovie('foreplay')">
+                        <span>🎬 3. Foreplay</span>
+                        <span class="movie-year">2026</span>
+                    </div>
+                    <div class="movie-item" onclick="loadMovie('sirena')">
+                        <span>🎬 4. Sirena</span>
+                        <span class="movie-year">2026</span>
+                    </div>
+                    <div class="movie-item" onclick="loadMovie('patikim-ni-robb-guinto')">
+                        <span>🎬 5. Patikim ni Robb Guinto</span>
+                        <span class="movie-year">2026</span>
+                    </div>
+                    <div class="movie-item" onclick="loadMovie('bagong-tukso')">
+                        <span>🎬 6. Bagong Tukso</span>
+                        <span class="movie-year">2026</span>
+                    </div>
+                    <div class="movie-item" onclick="loadMovie('claim-me')">
+                        <span>🎬 7. Claim Me</span>
+                        <span class="movie-year">2026</span>
+                    </div>
+                    <div class="movie-item" onclick="loadMovie('sulutan')">
+                        <span>🎬 8. Sulutan</span>
+                        <span class="movie-year">2026</span>
+                    </div>
+                    <div class="movie-item" onclick="loadMovie('the-secret-of-maria-makinang')">
+                        <span>🎬 9. The Secret of Maria Makinang</span>
+                        <span class="movie-year">2026</span>
+                    </div>
+                    <div class="movie-item" onclick="loadMovie('breast-friends-forever')">
+                        <span>🎬 10. Breast Friends Forever</span>
+                        <span class="movie-year">2026</span>
+                    </div>
+                    <div class="movie-item" onclick="loadMovie('happy-ending')">
+                        <span>🎬 11. Happy Ending</span>
+                        <span class="movie-year">2026</span>
+                    </div>
+                    <div class="movie-item" onclick="loadMovie('salikmata')">
+                        <span>🎬 12. Salikmata</span>
+                        <span class="movie-year">2026</span>
+                    </div>
+
+                    <!-- VIVAMAX 2025 - 28 MOVIES -->
+                    <div class="movie-item" onclick="loadMovie('vmx-rewind-the-best-of-vmx-2025')">
+                        <span>🎬 13. VMX Rewind</span>
+                        <span class="movie-year">2025</span>
+                    </div>
+                    <div class="movie-item" onclick="loadMovie('pagdaong')">
+                        <span>🎬 14. Pagdaong</span>
+                        <span class="movie-year">2025</span>
+                    </div>
+                    <div class="movie-item" onclick="loadMovie('aliwan-inn')">
+                        <span>🎬 15. Aliwan Inn</span>
+                        <span class="movie-year">2025</span>
+                    </div>
+                    <div class="movie-item" onclick="loadMovie('ekis')">
+                        <span>🎬 16. Ekis</span>
+                        <span class="movie-year">2025</span>
+                    </div>
+                    <div class="movie-item" onclick="loadMovie('kapag-tumayo-ang-testigo')">
+                        <span>🎬 17. Kapag Tumayo Ang Testigo</span>
+                        <span class="movie-year">2025</span>
+                    </div>
+                    <div class="movie-item" onclick="loadMovie('akin-ang-gabi')">
+                        <span>🎬 18. Akin Ang Gabi</span>
+                        <span class="movie-year">2025</span>
+                    </div>
+                    <div class="movie-item" onclick="loadMovie('balahibong-pusa')">
+                        <span>🎬 19. Balahibong Pusa</span>
+                        <span class="movie-year">2025</span>
+                    </div>
+                    <div class="movie-item" onclick="loadMovie('next-room-affair')">
+                        <span>🎬 20. Next Room Affair</span>
+                        <span class="movie-year">2025</span>
+                    </div>
+                    <div class="movie-item" onclick="loadMovie('madulas')">
+                        <span>🎬 21. Madulas</span>
+                        <span class="movie-year">2025</span>
+                    </div>
+                    <div class="movie-item" onclick="loadMovie('bigay-hilig')">
+                        <span>🎬 22. Bigay Hilig</span>
+                        <span class="movie-year">2025</span>
+                    </div>
+                    <div class="movie-item" onclick="loadMovie('nympho-vivamax')">
+                        <span>🎬 23. Nympho</span>
+                        <span class="movie-year">2025</span>
+                    </div>
+                    <div class="movie-item" onclick="loadMovie('mamasan')">
+                        <span>🎬 24. Mamasan</span>
+                        <span class="movie-year">2025</span>
+                    </div>
+                    <div class="movie-item" onclick="loadMovie('unli-pop')">
+                        <span>🎬 25. Unli Pop</span>
+                        <span class="movie-year">2025</span>
+                    </div>
+                    <div class="movie-item" onclick="loadMovie('sem-break')">
+                        <span>🎬 26. Sem Break</span>
+                        <span class="movie-year">2025</span>
+                    </div>
+                    <div class="movie-item" onclick="loadMovie('paalam-salamat')">
+                        <span>🎬 27. Paalam, Salamat</span>
+                        <span class="movie-year">2025</span>
+                    </div>
+                    <div class="movie-item" onclick="loadMovie('l-lipad')">
+                        <span>🎬 28. L: Lipad</span>
+                        <span class="movie-year">2025</span>
+                    </div>
+                    <div class="movie-item" onclick="loadMovie('basang-basa')">
+                        <span>🎬 29. Basang Basa</span>
+                        <span class="movie-year">2025</span>
+                    </div>
+                    <div class="movie-item" onclick="loadMovie('kirot')">
+                        <span>🎬 30. Kirot</span>
+                        <span class="movie-year">2025</span>
+                    </div>
+                    <div class="movie-item" onclick="loadMovie('mayumi')">
+                        <span>🎬 31. Mayumi</span>
+                        <span class="movie-year">2025</span>
+                    </div>
+                    <div class="movie-item" onclick="loadMovie('foreign-exchange')">
+                        <span>🎬 32. Foreign Exchange</span>
+                        <span class="movie-year">2025</span>
+                    </div>
+                    <div class="movie-item" onclick="loadMovie('todo-kayod')">
+                        <span>🎬 33. Todo Kayod</span>
+                        <span class="movie-year">2025</span>
+                    </div>
+                    <div class="movie-item" onclick="loadMovie('sweet-release-vivamax')">
+                        <span>🎬 34. Sweet Release</span>
+                        <span class="movie-year">2025</span>
+                    </div>
+                    <div class="movie-item" onclick="loadMovie('girl-bond-mahal-ko-ang-mahal-mo-vivamax')">
+                        <span>🎬 35. Girl Bond</span>
+                        <span class="movie-year">2025</span>
+                    </div>
+                    <div class="movie-item" onclick="loadMovie('barurot')">
+                        <span>🎬 36. Barurot</span>
+                        <span class="movie-year">2025</span>
+                    </div>
+                    <div class="movie-item" onclick="loadMovie('pasilip-ni-azi')">
+                        <span>🎬 37. Pasilip Ni Azi</span>
+                        <span class="movie-year">2025</span>
+                    </div>
+                    <div class="movie-item" onclick="loadMovie('kitty-k7')">
+                        <span>🎬 38. Kitty K7</span>
+                        <span class="movie-year">2025</span>
+                    </div>
+                    <div class="movie-item" onclick="loadMovie('bulong-ng-laman')">
+                        <span>🎬 39. Bulong Ng Laman</span>
+                        <span class="movie-year">2025</span>
+                    </div>
+                    <div class="movie-item" onclick="loadMovie('biyak')">
+                        <span>🎬 40. Biyak</span>
+                        <span class="movie-year">2025</span>
+                    </div>
+
                     <!-- KOREAN MOVIES -->
-                    <div class="movie-item" onclick="loadMovie('stepmom')">🇰🇷 41. Stepmom - 새엄마들 (2019)</div>
-                    <div class="movie-item" onclick="loadMovie('big-breasted-mom-full-korea-18-adult-movie-online-free')">🇰🇷 42. Big Breasted Mom (2020)</div>
-                    <div class="movie-item" onclick="loadMovie('observation-man')">🇰🇷 43. Observation Man (2020)</div>
-                    
+                    <div class="movie-item" onclick="loadMovie('stepmom')">
+                        <span>🇰🇷 41. Stepmom</span>
+                        <span class="movie-year">2019</span>
+                    </div>
+                    <div class="movie-item" onclick="loadMovie('big-breasted-mom-full-korea-18-adult-movie-online-free')">
+                        <span>🇰🇷 42. Big Breasted Mom</span>
+                        <span class="movie-year">2020</span>
+                    </div>
+                    <div class="movie-item" onclick="loadMovie('observation-man')">
+                        <span>🇰🇷 43. Observation Man</span>
+                        <span class="movie-year">2020</span>
+                    </div>
+
                     <!-- OTHER MOVIES -->
-                    <div class="movie-item" onclick="loadMovie('kinsenas-katapusan-2022')">📽️ 44. Kinsenas, Katapusan (2022)</div>
+                    <div class="movie-item" onclick="loadMovie('kinsenas-katapusan-2022')">
+                        <span>📽️ 44. Kinsenas, Katapusan</span>
+                        <span class="movie-year">2022</span>
+                    </div>
                 </div>
             </div>
 
-            <!-- CENTER PANEL - BROWSER -->
             <div class="browser-panel">
-                <iframe id="browserIframe" sandbox="allow-same-origin allow-scripts allow-popups allow-forms" style="width:100%; height:100%; border:none;"></iframe>
+                <iframe id="browserIframe" style="width:100%; height:100%; border:none;"></iframe>
             </div>
 
-            <!-- RIGHT PANEL - EXTRACTOR -->
             <div class="extract-panel" id="extractPanel">
                 <div style="color: #aaa; text-align: center; padding: 20px;">
-                    ⚡ Pumili ng movie sa kaliwa
+                    ⚡ Pumili ng movie sa kaliwa<br><br>
+                    <small>1-44 complete list</small>
                 </div>
             </div>
         </div>
 
         <div class="status-bar" id="statusBar">
-            ✅ Ready | 44 Movies | Pansamantala ang una
+            ✅ Complete 44 Movies | Pansamantala #1 | Ready
         </div>
     </div>
 
     <script>
         let currentProxy = 'corsproxy';
         let currentSlug = 'pansamantala';
+        let currentM3UContent = '';
         
         const proxies = {
             'corsproxy': 'https://corsproxy.io/?',
-            'allorigins': 'https://api.allorigins.win/raw?url=',
-            'thingproxy': 'https://thingproxy.freeboard.io/fetch/'
+            'allorigins': 'https://api.allorigins.win/raw?url='
         };
 
         function setProxy(proxy) {
@@ -366,18 +485,14 @@
             currentSlug = slug;
             let url = `https://www.cat3movie.club/${slug}/`;
             document.getElementById('urlInput').value = url;
-            
-            // Load sa browser
             document.getElementById('browserIframe').src = url;
             
-            // Highlight selected
             document.querySelectorAll('.movie-item').forEach(item => {
                 item.classList.remove('selected');
             });
             event.target.classList.add('selected');
             
-            // Auto extract
-            setTimeout(extractMovie, 2000);
+            extractMovie();
         }
 
         async function extractMovie() {
@@ -386,7 +501,7 @@
             document.getElementById('extractPanel').innerHTML = `
                 <div style="text-align:center; padding:30px; color:#e94560;">
                     <div style="border:4px solid #e94560; border-top-color:transparent; width:40px; height:40px; border-radius:50%; margin:20px auto; animation:spin 1s linear infinite;"></div>
-                    <p>Extracting video...</p>
+                    <p>Extracting...</p>
                 </div>
             `;
 
@@ -394,12 +509,11 @@
                 let proxyUrl = proxies[currentProxy] + encodeURIComponent(url);
                 let response = await fetch(proxyUrl);
                 let html = await response.text();
-                
                 displayResult(html);
             } catch (error) {
                 document.getElementById('extractPanel').innerHTML = `
                     <div style="color:#ef4444; text-align:center; padding:20px;">
-                        ❌ Error: ${error.message}<br><br>
+                        ❌ Error<br><br>
                         <button class="btn btn-primary" onclick="extractMovie()">Try Again</button>
                     </div>
                 `;
@@ -461,13 +575,14 @@
             if (videoUrl) {
                 let logoTag = logoUrl ? ` tvg-logo="${logoUrl}"` : '';
                 let m3uContent = `#EXTM3U\n#EXTINF:-1${logoTag},${title || currentSlug}\n${videoUrl}`;
+                currentM3UContent = m3uContent;
                 
                 output += `
                     <div class="m3u-card">
                         <div style="color:#e94560; font-weight:bold;">📀 M3U FILE</div>
-                        <div class="m3u-content">${m3uContent}</div>
-                        <button class="btn btn-primary" onclick='downloadM3U("${m3uContent}", "${title || currentSlug}")'>⬇️ Download</button>
-                        <button class="btn btn-success" onclick='copyM3U("${m3uContent}")'>📋 Copy</button>
+                        <div class="m3u-content" id="m3uContent">${m3uContent.replace(/\n/g, '<br>')}</div>
+                        <button class="btn btn-primary" onclick="downloadM3U()">⬇️ Download</button>
+                        <button class="btn btn-success" onclick="copyM3U()">📋 Copy</button>
                     </div>
                 `;
             }
@@ -475,18 +590,21 @@
             document.getElementById('extractPanel').innerHTML = output || '<div style="color:#ef4444; text-align:center;">❌ No video found</div>';
         }
 
-        function downloadM3U(content, title) {
-            let filename = title.toLowerCase().replace(/[^a-z0-9]+/g, '_') + '.m3u';
-            let blob = new Blob([content], {type: 'text/plain'});
+        function downloadM3U() {
+            if (!currentM3UContent) return;
+            let filename = currentSlug + '.m3u';
+            let blob = new Blob([currentM3UContent], {type: 'text/plain'});
             let a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
             a.download = filename;
             a.click();
         }
 
-        function copyM3U(content) {
-            navigator.clipboard.writeText(content);
-            alert('M3U copied!');
+        function copyM3U() {
+            if (!currentM3UContent) return;
+            navigator.clipboard.writeText(currentM3UContent).then(() => {
+                alert('✅ M3U copied!');
+            });
         }
 
         // Load Pansamantala on start
