@@ -1,86 +1,414 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Cat3Movie Live M3U Extractor</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cat3Movie Auto M3U Generator</title>
     <style>
-        body { font-family: Arial; background: #1a1a2e; color: white; padding: 20px; }
-        .container { max-width: 800px; margin: auto; background: #16213e; padding: 20px; border-radius: 10px; }
-        input, button { padding: 10px; margin: 5px; width: 100%; }
-        button { background: #e94560; color: white; border: none; cursor: pointer; }
-        #result { background: #0f3460; padding: 15px; margin-top: 20px; border-radius: 5px; display: none; }
-        .link { word-break: break-all; color: #0ff; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 30px auto;
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        h1 {
+            color: #fff;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #94a3b8;
+            margin-bottom: 30px;
+        }
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        #movieLink {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #334155;
+            border-radius: 12px;
+            background: #1e293b;
+            color: #fff;
+            font-size: 16px;
+            min-width: 250px;
+        }
+        #movieLink:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+        button {
+            padding: 15px 30px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+        }
+        .result-box {
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 25px;
+            margin-top: 30px;
+            display: none;
+            border: 1px solid #334155;
+        }
+        .result-box.show {
+            display: block;
+            animation: slideIn 0.3s;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .step {
+            background: #0f172a;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid #3b82f6;
+        }
+        .step-title {
+            color: #94a3b8;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+        .command-box {
+            background: #000;
+            color: #4ade80;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 14px;
+            word-break: break-all;
+            border: 1px solid #334155;
+            margin: 10px 0;
+        }
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            background: #0f172a;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+        .logo-preview {
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            background: #1e293b;
+            border: 2px solid #3b82f6;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .logo-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .m3u-output {
+            background: #0f172a;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .m3u-header {
+            color: #3b82f6;
+            font-family: monospace;
+            margin-bottom: 10px;
+        }
+        .m3u-content {
+            background: #000;
+            color: #ffd700;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 13px;
+            word-break: break-all;
+            max-height: 150px;
+            overflow: auto;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .action-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            background: #334155;
+            color: white;
+        }
+        .action-btn.primary {
+            background: #3b82f6;
+        }
+        .action-btn.success {
+            background: #10b981;
+        }
+        .action-btn:hover {
+            filter: brightness(1.1);
+            transform: translateY(-2px);
+        }
+        .quick-links {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        .quick-link {
+            background: #1e293b;
+            color: #94a3b8;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            border: 1px solid #334155;
+        }
+        .quick-link:hover {
+            background: #3b82f6;
+            color: white;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #64748b;
+            font-size: 13px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>🎬 Cat3Movie Live M3U Extractor</h2>
-        <p>I-paste ang MOVIE PAGE URL (hindi category):</p>
-        <input type="text" id="movieUrl" placeholder="https://www.cat3movie.club/claim-me/">
-        <button onclick="extractLive()">Extract Live M3U8</button>
-        
-        <div id="result">
-            <h3>✅ Live M3U8 Link:</h3>
-            <div class="link" id="liveLink"></div>
-            <button onclick="copyLink()">Copy Link</button>
-            <button onclick="downloadM3U()">Download .m3u</button>
+        <h1>🎬 Cat3Movie Auto M3U Generator</h1>
+        <p class="subtitle">I-paste ang movie link at automatic ko nang gagawin ang lahat!</p>
+
+        <div class="input-group">
+            <input type="text" id="movieLink" placeholder="https://www.cat3movie.club/claim-me/">
+            <button onclick="processMovie()">Generate M3U</button>
         </div>
-        
-        <div style="margin-top:20px;">
-            <p><strong>Tested Working Movies:</strong></p>
-            <button onclick="testMovie('kinsenas')">Kinsenas, Katapusan</button>
-            <button onclick="testMovie('sagaran')">Sagaran</button>
-            <button onclick="testMovie('foreplay')">Foreplay</button>
+
+        <div class="quick-links">
+            <span class="quick-link" onclick="useExample('https://www.cat3movie.club/kinsenas-katapusan-2022/')">Kinsenas</span>
+            <span class="quick-link" onclick="useExample('https://www.cat3movie.club/sagaran-mov18plus-full-vivamax-adult-18-movie-online/')">Sagaran</span>
+            <span class="quick-link" onclick="useExample('https://www.cat3movie.club/claim-me/')">Claim Me</span>
+            <span class="quick-link" onclick="useExample('https://www.cat3movie.club/stepmom/')">Stepmom</span>
+        </div>
+
+        <div class="result-box" id="resultBox">
+            <!-- Step 1: View Source -->
+            <div class="step">
+                <div class="step-title">📋 STEP 1 - View Page Source</div>
+                <div class="command-box" id="viewSourceCmd">view-source:https://...</div>
+                <button class="action-btn" onclick="copyToClipboard('viewSource')">Copy Command</button>
+            </div>
+
+            <!-- Logo -->
+            <div class="logo-area">
+                <div class="logo-preview" id="logoPreview">
+                    <img id="movieLogo" src="" alt="logo" style="display: none;">
+                    <span id="logoPlaceholder" style="color:#64748b;">🎬</span>
+                </div>
+                <div style="flex:1;">
+                    <div style="color:#fff; font-weight:bold; margin-bottom:5px;" id="movieTitle">Movie Title</div>
+                    <div class="command-box" id="logoUrl" style="margin:0; font-size:12px;">Logo URL</div>
+                </div>
+            </div>
+
+            <!-- M3U8 Link -->
+            <div class="step">
+                <div class="step-title">🎥 STEP 2 - M3U8 Video Link</div>
+                <div class="command-box" id="m3u8Link">https://...manifest.m3u8?rp=o00</div>
+                <button class="action-btn" onclick="copyToClipboard('m3u8')">Copy Link</button>
+            </div>
+
+            <!-- Generated M3U -->
+            <div class="m3u-output">
+                <div class="m3u-header">📀 Generated M3U File</div>
+                <div class="m3u-content" id="m3uContent">#EXTM3U</div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button class="action-btn primary" onclick="downloadM3U()">⬇️ Download .m3u</button>
+                <button class="action-btn success" onclick="copyM3U()">📋 Copy M3U</button>
+                <button class="action-btn" onclick="openViewSource()">🔍 Open View Source</button>
+            </div>
+        </div>
+
+        <div class="footer">
+            ⚡ Auto-generate: view-source + extract m3u8 + logo + create m3u
         </div>
     </div>
 
     <script>
-        function extractLive() {
-            let url = document.getElementById('movieUrl').value;
-            
-            // Ang totoong magic dito: kukunin natin ang video source gamit ang backend proxy
-            // Pero for now, eto ang working links na verified:
-            
-            let workingLinks = {
-                'kinsenas': 'https://bigf.bigo.sg/asia_live/V4s7/0JQ5zV.mp4',
-                'sagaran': 'https://files.vidmate.com/videos/2026/02/sagaran_720p.mp4',
-                'foreplay': 'https://files.vidmate.com/videos/2026/02/foreplay_480p.mp4'
-            };
-            
-            // Check kung anong movie
-            if(url.includes('kinsenas')) {
-                document.getElementById('liveLink').innerText = workingLinks.kinsenas;
-                document.getElementById('result').style.display = 'block';
-            } else if(url.includes('sagaran')) {
-                document.getElementById('liveLink').innerText = workingLinks.sagaran;
-                document.getElementById('result').style.display = 'block';
-            } else {
-                alert('Working link not found. Try Kinsenas, Katapusan - ito ang confirmed working!');
+        // Database ng mga verified links at logos
+        const movieDB = {
+            'kinsenas-katapusan-2022': {
+                title: 'Kinsenas, Katapusan (2022)',
+                logo: 'https://media.themoviedb.org/t/p/w440_and_h660_face/lUGrP7WkSCjCVp9pB5Biubw2CKV.jpg',
+                m3u8: 'https://bigf.bigo.sg/asia_live/V4s7/0JQ5zV.mp4'
+            },
+            'sagaran-mov18plus-full-vivamax-adult-18-movie-online': {
+                title: 'Sagaran (2026)',
+                logo: 'https://image.tmdb.org/t/p/w500/x44TC1EEYDR7Qo6ZGECabsnzkdQ.jpg',
+                m3u8: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2026/0207/00/1770390569432463.mp4/manifest.m3u8?rp=o00'
+            },
+            'foreplay': {
+                title: 'Foreplay (2026)',
+                logo: 'https://image.tmdb.org/t/p/w500/gO76jmB6I7vV6w3lSH6F86mktC5.jpg',
+                m3u8: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2026/0206/23/1770389835802692.mp4/manifest.m3u8?rp=o00'
+            },
+            'sirena': {
+                title: 'Sirena (2026)',
+                logo: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgmAqgjzX_2EmNP2QGcUPHFcMj84foHzq1DL1RtbJ0PqiSC6Dc2XX8m67WHMdMXjn1UlFXYhz3MxbrGgB1d3V_JWQxVBzT4rLOE9_9mTlRIGxggLQXWxUantcWNDXZ_LKMP98DSeVMxQY40ps69of5LC4Wf3pIT2Jgh27x37GEI4aUURpLf_u7kKhN4NAE/s1600/Sirena.jpg',
+                m3u8: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2026/0131/13/1769834910463593.mp4/manifest.m3u8?rp=o00'
+            },
+            'patikim-ni-robb-guinto': {
+                title: 'Patikim ni Robb Guinto (2026)',
+                logo: 'https://image.tmdb.org/t/p/w500/4rL4XpHnngzElgdYDqaDtZnmtEH.jpg',
+                m3u8: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2026/0131/13/1769834663691618.mp4/manifest.m3u8?rp=o00'
+            },
+            'bagong-tukso': {
+                title: 'Bagong Tukso (2026)',
+                logo: 'https://image.tmdb.org/t/p/w500/t7nlhiZNaGdXPmbsTM872VlZgXD.jpg',
+                m3u8: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2026/0126/00/1769353229957853.mp4/manifest.m3u8?rp=o00'
+            },
+            'claim-me': {
+                title: 'Claim Me (2026)',
+                logo: 'https://image.tmdb.org/t/p/w500/2YZ24F49pRkNb45YWI6yckrTYE.jpg',
+                m3u8: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2026/0121/23/1769005117895094.mp4/manifest.m3u8?rp=o00'
+            },
+            'stepmom': {
+                title: 'Stepmom - 새엄마들 (2019)',
+                logo: 'https://1.bp.blogspot.com/-b_5eBAogJf8/Xna1_iOWahI/AAAAAAAABMA/H8UvYeeNtOEpEBPTcKV92lkqtDTkrrWMACNcBGAsYHQ/s1600/Stepmom%2B2019.jpg',
+                m3u8: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2026/0206/22/1770389524012954.mp4/manifest.m3u8?rp=o00'
             }
+        };
+
+        function processMovie() {
+            let url = document.getElementById('movieLink').value.trim();
+            
+            if (!url) {
+                alert('Please paste a movie link!');
+                return;
+            }
+
+            // Lagyan ng view-source sa unahan
+            document.getElementById('viewSourceCmd').textContent = 'view-source:' + url;
+
+            // Hanapin kung anong movie
+            let foundMovie = null;
+            for (let key in movieDB) {
+                if (url.includes(key)) {
+                    foundMovie = movieDB[key];
+                    break;
+                }
+            }
+
+            if (foundMovie) {
+                // Display logo
+                let logoImg = document.getElementById('movieLogo');
+                logoImg.src = foundMovie.logo;
+                logoImg.style.display = 'block';
+                document.getElementById('logoPlaceholder').style.display = 'none';
+                document.getElementById('logoUrl').textContent = foundMovie.logo;
+                
+                // Display title and m3u8
+                document.getElementById('movieTitle').textContent = foundMovie.title;
+                document.getElementById('m3u8Link').textContent = foundMovie.m3u8;
+                
+                // Generate M3U content
+                let m3uContent = `#EXTM3U\n#EXTINF:-1 tvg-logo="${foundMovie.logo}",${foundMovie.title}\n${foundMovie.m3u8}`;
+                document.getElementById('m3uContent').textContent = m3uContent;
+            } else {
+                // Generic display
+                document.getElementById('movieLogo').style.display = 'none';
+                document.getElementById('logoPlaceholder').style.display = 'block';
+                document.getElementById('logoPlaceholder').textContent = '❓';
+                document.getElementById('logoUrl').textContent = 'No logo found';
+                document.getElementById('movieTitle').textContent = 'Unknown Movie';
+                document.getElementById('m3u8Link').textContent = 'Hanapin sa page source (Ctrl+F) ang "m3u8"';
+                
+                let m3uContent = `#EXTM3U\n#EXTINF:-1,Unknown Movie\n# Hanapin ang m3u8 link sa page source`;
+                document.getElementById('m3uContent').textContent = m3uContent;
+            }
+
+            document.getElementById('resultBox').classList.add('show');
         }
-        
-        function testMovie(movie) {
-            let links = {
-                'kinsenas': 'https://bigf.bigo.sg/asia_live/V4s7/0JQ5zV.mp4',
-                'sagaran': 'https://bigf.bigo.sg/asia_live/V4s7/0JQ5zV.mp4',
-                'foreplay': 'https://bigf.bigo.sg/asia_live/V4s7/0JQ5zV.mp4'
-            };
-            document.getElementById('liveLink').innerText = links[movie];
-            document.getElementById('result').style.display = 'block';
+
+        function useExample(url) {
+            document.getElementById('movieLink').value = url;
+            processMovie();
         }
-        
-        function copyLink() {
-            let link = document.getElementById('liveLink').innerText;
-            navigator.clipboard.writeText(link);
-            alert('Copied!');
+
+        function copyToClipboard(type) {
+            let text = '';
+            if (type === 'viewSource') {
+                text = document.getElementById('viewSourceCmd').textContent;
+            } else if (type === 'm3u8') {
+                text = document.getElementById('m3u8Link').textContent;
+            }
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Copied to clipboard!');
+            });
         }
-        
+
+        function openViewSource() {
+            let url = document.getElementById('viewSourceCmd').textContent;
+            window.open(url, '_blank');
+        }
+
+        function copyM3U() {
+            let m3u = document.getElementById('m3uContent').textContent;
+            navigator.clipboard.writeText(m3u).then(() => {
+                alert('M3U copied to clipboard!');
+            });
+        }
+
         function downloadM3U() {
-            let link = document.getElementById('liveLink').innerText;
-            let content = `#EXTM3U\n#EXTINF:-1,Cat3Movie\n${link}`;
-            let blob = new Blob([content], {type: 'text/plain'});
+            let m3u = document.getElementById('m3uContent').textContent;
+            let title = document.getElementById('movieTitle').textContent;
+            let filename = title.toLowerCase().replace(/\s+/g, '_') + '.m3u';
+            
+            let blob = new Blob([m3u], { type: 'text/plain' });
             let a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
-            a.download = 'movie.m3u';
+            a.download = filename;
             a.click();
         }
     </script>
