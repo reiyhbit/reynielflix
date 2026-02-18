@@ -3,438 +3,425 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Viva Stream Grid Player (HLS.js + Shaka)</title>
+    <title>Cat3Movie M3U8 Extractor</title>
     <style>
         * {
+            margin: 0;
+            padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
         }
         body {
-            background: #0e0e12;
-            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: #f0f0f0;
             padding: 20px;
         }
-        .app-container {
-            max-width: 1400px;
-            width: 100%;
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
         h1 {
-            font-weight: 400;
-            font-size: 2rem;
-            margin: 0 0 8px 0;
-            letter-spacing: -0.5px;
-            color: #ff7b9c;
-            border-left: 6px solid #ff3b6f;
-            padding-left: 18px;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
         }
-        .subhead {
-            color: #aaa;
-            margin-top: 0;
+        .subtitle {
+            color: #666;
             margin-bottom: 30px;
-            font-style: italic;
-            font-size: 0.95rem;
-            padding-left: 24px;
+            font-size: 16px;
         }
-        /* GRID */
-        .stream-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-            gap: 18px;
-            margin-bottom: 40px;
-        }
-        /* CARD */
-        .stream-card {
-            background: #1e1e28;
-            border-radius: 22px;
-            padding: 18px 8px 12px 8px;
-            cursor: pointer;
-            transition: transform 0.15s ease, box-shadow 0.2s;
+        .input-group {
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            border: 2px solid transparent;
-            box-shadow: 0 8px 18px rgba(0,0,0,0.6);
-            backdrop-filter: blur(2px);
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
         }
-        .stream-card:hover {
-            transform: scale(1.02);
-            border-color: #ff5777;
-            background: #262636;
-            box-shadow: 0 12px 24px #b3002d30;
+        #urlInput {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            min-width: 250px;
         }
-        .stream-card.active {
-            border-color: #ff1744;
-            background: #2d1e28;
-            box-shadow: 0 0 0 3px #ff174450;
-        }
-        .logo-wrapper {
-            width: 100px;
-            height: 140px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 12px;
-            background: #2b2b3a;
-            border-radius: 16px;
-            padding: 10px 0;
-            box-shadow: inset 0 0 0 1px #3f3f55;
-        }
-        .stream-logo {
-            max-width: 90px;
-            max-height: 120px;
-            border-radius: 12px;
-            object-fit: contain;
-            background: transparent;
-            transition: opacity 0.2s;
-            box-shadow: 0 4px 10px black;
-        }
-        .stream-title {
-            font-size: 0.86rem;
-            font-weight: 600;
-            line-height: 1.3;
-            max-width: 140px;
-            color: #fbd5df;
-            margin: 4px 0 2px;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            text-shadow: 0 2px 3px black;
-        }
-        .badge {
-            background: #2f2f42;
-            font-size: 0.7rem;
-            padding: 4px 12px;
-            border-radius: 40px;
-            color: #cfcfec;
-            margin-top: 6px;
-            border: 1px solid #4c4c70;
-        }
-        /* PLAYER SECTION */
-        .player-section {
-            background: #0b0b12;
-            border-radius: 40px;
-            padding: 24px 24px 30px;
-            border: 1px solid #3a2a32;
-            box-shadow: 0 20px 30px #00000080;
-        }
-        .video-container {
-            position: relative;
-            width: 100%;
-            background: #000000;
-            border-radius: 28px;
-            overflow: hidden;
-            box-shadow: 0 0 30px #ff174430;
-            aspect-ratio: 16 / 9;
-        }
-        video {
-            width: 100%;
-            height: 100%;
-            display: block;
-            background: #0b0f12;
+        #urlInput:focus {
             outline: none;
+            border-color: #667eea;
         }
-        .player-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: 16px 8px 6px;
+        button {
+            padding: 15px 30px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
         }
-        .now-playing {
-            font-weight: 500;
-            background: #23222f;
-            padding: 6px 22px;
-            border-radius: 60px;
-            border-left: 4px solid #ff3b6f;
-            font-size: 1.1rem;
+        button:hover {
+            background: #5a67d8;
         }
-        .library-link {
-            color: #adadff;
-            text-decoration: none;
-            font-size: 0.9rem;
-            background: #1c1c28;
-            padding: 6px 18px;
-            border-radius: 30px;
-            border: 1px solid #4b3b50;
+        button:disabled {
+            background: #a0a0a0;
+            cursor: not-allowed;
         }
-        .library-link:hover {
-            background: #2d2d40;
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
         }
-        .error-message {
-            color: #ffa6b0;
-            background: #4a1e2a;
-            border-radius: 40px;
-            padding: 10px 25px;
-            margin-top: 15px;
-            border: 1px solid #ff6b7c;
-            font-size: 0.95rem;
-            display: inline-block;
-        }
-        .loading-indicator {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid #ffc2d0;
-            border-top-color: #ff1744;
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
             border-radius: 50%;
-            animation: spin 0.9s linear infinite;
-            margin-right: 10px;
-            vertical-align: middle;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
         }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        footer {
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .result {
             margin-top: 30px;
-            opacity: 0.6;
-            font-size: 0.8rem;
+            display: none;
         }
-        /* scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #1a1a24; }
-        ::-webkit-scrollbar-thumb { background: #ff3b6f; border-radius: 8px; }
+        .result.show {
+            display: block;
+        }
+        .movie-info {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .movie-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .movie-year {
+            color: #666;
+            margin-bottom: 15px;
+        }
+        .m3u8-box {
+            background: #2d3748;
+            color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 14px;
+            margin: 15px 0;
+        }
+        .copy-btn {
+            background: #48bb78;
+            margin-right: 10px;
+        }
+        .copy-btn:hover {
+            background: #38a169;
+        }
+        .download-btn {
+            background: #4299e1;
+        }
+        .download-btn:hover {
+            background: #3182ce;
+        }
+        .error {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            display: none;
+        }
+        .error.show {
+            display: block;
+        }
+        .examples {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+        .examples h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        .example-item {
+            background: #f8f9fa;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .example-item:hover {
+            background: #e9ecef;
+        }
+        .example-url {
+            font-size: 14px;
+            color: #667eea;
+            word-break: break-all;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #666;
+            font-size: 14px;
+        }
+        .stats {
+            background: #e6f7ff;
+            border-radius: 8px;
+            padding: 10px 15px;
+            margin-bottom: 20px;
+            color: #0050b3;
+            font-size: 14px;
+        }
     </style>
-    <!-- Shaka and HLS.js -->
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/shaka-player@4/dist/shaka-player.compiled.js"></script>
 </head>
 <body>
-<div class="app-container">
-    <h1>🎬 VIVA GRID · HLS / SHAKA</h1>
-    <div class="subhead">⚡ mula sa iyong playlist · i-click ang poster para ipalabas</div>
+    <div class="container">
+        <h1>🎬 Cat3Movie M3U8 Extractor</h1>
+        <p class="subtitle">I-paste ang movie URL para makuha ang direct M3U8 link</p>
 
-    <!-- DYNAMIC GRID -->
-    <div id="streamGrid" class="stream-grid">Loading stream catalog...</div>
+        <div class="stats" id="stats">
+            📊 15 movies available sa database
+        </div>
 
-    <!-- PLAYER PANEL -->
-    <div class="player-section">
-        <div class="video-container">
-            <video id="videoPlayer" controls autoplay playsinline poster="https://via.placeholder.com/640x360/1e1e2f/ff6b8b?text=VIVA+stream"></video>
+        <div class="input-group">
+            <input type="url" id="urlInput" placeholder="https://www.cat3movie.club/movie-name/" value="">
+            <button onclick="extractM3U8()">Extract M3U8</button>
         </div>
-        <div class="player-info">
-            <span id="nowPlayingLabel" class="now-playing">⏸️ pumili ng video</span>
-            <a class="library-link" href="#" id="m3uSourceLink" target="_blank">📋 raw playlist</a>
+
+        <div class="loading" id="loading">
+            <div class="loading-spinner"></div>
+            <p>Kinukuha ang video link...</p>
         </div>
-        <div id="playerStatus" class="error-message" style="display: none;"></div>
+
+        <div class="error" id="error"></div>
+
+        <div class="result" id="result">
+            <div class="movie-info">
+                <div class="movie-title" id="movieTitle"></div>
+                <div class="movie-year" id="movieYear"></div>
+                <div class="m3u8-box" id="m3u8Link"></div>
+                <button class="copy-btn" onclick="copyToClipboard()">📋 Copy Link</button>
+                <button class="download-btn" onclick="downloadM3U()">⬇️ Download .m3u</button>
+            </div>
+        </div>
+
+        <div class="examples">
+            <h3>📌 Example Movies (click to try):</h3>
+            <div class="example-item" onclick="useExample('https://www.cat3movie.club/sagaran-mov18plus-full-vivamax-adult-18-movie-online/')">
+                <div>Sagaran (2026)</div>
+                <div class="example-url">/sagaran-mov18plus-full-vivamax-adult-18-movie-online/</div>
+            </div>
+            <div class="example-item" onclick="useExample('https://www.cat3movie.club/kinsenas-katapusan-2022/')">
+                <div>Kinsenas, Katapusan (2022)</div>
+                <div class="example-url">/kinsenas-katapusan-2022/</div>
+            </div>
+            <div class="example-item" onclick="useExample('https://www.cat3movie.club/stepmom/')">
+                <div>Stepmom - 새엄마들 (2019)</div>
+                <div class="example-url">/stepmom/</div>
+            </div>
+        </div>
+
+        <div class="footer">
+            ⚡ Quick & Easy M3U8 Extractor for Cat3Movie
+        </div>
     </div>
-    <footer>⚙️ grid gamit ang logo mula sa iyong M3U · HLS.js + Shaka fallback</footer>
-</div>
 
-<script>
-    (function() {
-        // --- configuration ---
-        const M3U_URL = 'https://raw.githubusercontent.com/reiyhbit/iptv/refs/heads/main/viva.m3u';
+    <script>
+        // Database ng mga nakuha nating links
+        const movieDatabase = {
+            // 2026 Vivamax Movies
+            'sagaran': {
+                title: 'Sagaran',
+                year: '2026',
+                url: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2026/0207/00/1770390569432463.mp4/manifest.m3u8?rp=o00',
+                logo: 'https://image.tmdb.org/t/p/w500/x44TC1EEYDR7Qo6ZGECabsnzkdQ.jpg'
+            },
+            'foreplay': {
+                title: 'Foreplay',
+                year: '2026',
+                url: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2026/0206/23/1770389835802692.mp4/manifest.m3u8?rp=o00',
+                logo: 'https://image.tmdb.org/t/p/w500/gO76jmB6I7vV6w3lSH6F86mktC5.jpg'
+            },
+            'sirena': {
+                title: 'Sirena',
+                year: '2026',
+                url: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2026/0131/13/1769834910463593.mp4/manifest.m3u8?rp=o00',
+                logo: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgmAqgjzX_2EmNP2QGcUPHFcMj84foHzq1DL1RtbJ0PqiSC6Dc2XX8m67WHMdMXjn1UlFXYhz3MxbrGgB1d3V_JWQxVBzT4rLOE9_9mTlRIGxggLQXWxUantcWNDXZ_LKMP98DSeVMxQY40ps69of5LC4Wf3pIT2Jgh27x37GEI4aUURpLf_u7kKhN4NAE/s1600/Sirena.jpg'
+            },
+            'patikim-ni-robb-guinto': {
+                title: 'Patikim ni Robb Guinto',
+                year: '2026',
+                url: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2026/0131/13/1769834663691618.mp4/manifest.m3u8?rp=o00',
+                logo: 'https://image.tmdb.org/t/p/w500/4rL4XpHnngzElgdYDqaDtZnmtEH.jpg'
+            },
+            'bagong-tukso': {
+                title: 'Bagong Tukso',
+                year: '2026',
+                url: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2026/0126/00/1769353229957853.mp4/manifest.m3u8?rp=o00',
+                logo: 'https://image.tmdb.org/t/p/w500/t7nlhiZNaGdXPmbsTM872VlZgXD.jpg'
+            },
+            'claim-me': {
+                title: 'Claim Me',
+                year: '2026',
+                url: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2026/0121/14/1768573339995794.mp4/manifest.m3u8?rp=o00',
+                logo: 'https://image.tmdb.org/t/p/w500/2YZ24F49pRkNb45YWI6yckrTYE.jpg'
+            },
+            'sulutan': {
+                title: 'Sulutan',
+                year: '2026',
+                url: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2026/0118/05/1767805994517754.mp4/manifest.m3u8?rp=o00',
+                logo: 'https://image.tmdb.org/t/p/w500/kd11696ab32WhHUeq5ZkWi9k09Y.jpg'
+            },
+            'the-secret-of-maria-makinang': {
+                title: 'The Secret of Maria Makinang',
+                year: '2026',
+                url: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2026/0118/05/1767805962533167.mp4/manifest.m3u8?rp=o00',
+                logo: 'https://image.tmdb.org/t/p/w500/s6uqdKGDnDml0RYXXza9unzJpVQ.jpg'
+            },
+            'pansamantala': {
+                title: 'Pansamantala',
+                year: '2026',
+                url: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2026/0111/16/1767040489304349.mp4/manifest.m3u8?rp=o00',
+                logo: 'https://image.tmdb.org/t/p/w500/oa9YIxSVw7FsVIWaObFiO0RkKv0.jpg'
+            },
+            // 2025 Movies
+            'bugaw': {
+                title: 'Bugaw',
+                year: '2025',
+                url: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2025/1229/16/1764521452947468.mp4/manifest.m3u8?rp=o00',
+                logo: 'https://image.tmdb.org/t/p/w500/kGdFWr1bWqFmhi5F5SVCfK5p1Iz.jpg'
+            },
+            'hubad-na-puso': {
+                title: 'Hubad na Puso',
+                year: '2025',
+                url: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2025/1222/16/1763696024485937.mp4/manifest.m3u8?rp=o00',
+                logo: 'https://image.tmdb.org/t/p/w500/sVkj5I1kY5c3zM9zGjfX2bY5c3z.jpg'
+            },
+            'selos': {
+                title: 'Selos',
+                year: '2025',
+                url: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2025/1215/16/1762953184648419.mp4/manifest.m3u8?rp=o00',
+                logo: 'https://image.tmdb.org/t/p/w500/1n7O7YjK9LqXQK7XgXgXgXgXgXg.jpg'
+            },
+            // Korean Movies
+            'stepmom': {
+                title: 'Stepmom - 새엄마들',
+                year: '2019',
+                url: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2026/0206/22/1770389524012954.mp4/manifest.m3u8?rp=o00',
+                logo: 'https://1.bp.blogspot.com/-b_5eBAogJf8/Xna1_iOWahI/AAAAAAAABMA/H8UvYeeNtOEpEBPTcKV92lkqtDTkrrWMACNcBGAsYHQ/s1600/Stepmom%2B2019.jpg'
+            },
+            'big-breasted-mom': {
+                title: 'Big Breasted Mom - 가슴 큰 엄마들',
+                year: '2020',
+                url: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2026/0206/21/1770389240261605.mp4/manifest.m3u8?rp=o00',
+                logo: 'https://1.bp.blogspot.com/-fRv6pR6-Wkk/XnbMDAYuweI/AAAAAAAABNo/5vboZBuf2K41cvHaPQeSjKciK5fI-unAwCNcBGAsYHQ/s1600/Big%2BBreasted%2BMom.jpg'
+            },
+            'kinsenas-katapusan-2022': {
+                title: 'Kinsenas, Katapusan',
+                year: '2022',
+                url: 'https://bigf.bigo.sg/asia_live/V4s7/0JQ5zV.mp4',
+                logo: 'https://media.themoviedb.org/t/p/w440_and_h660_face/lUGrP7WkSCjCVp9pB5Biubw2CKV.jpg'
+            }
+        };
 
-        // --- DOM elements ---
-        const gridEl = document.getElementById('streamGrid');
-        const video = document.getElementById('videoPlayer');
-        const nowPlayingEl = document.getElementById('nowPlayingLabel');
-        const statusEl = document.getElementById('playerStatus');
-        const sourceLink = document.getElementById('m3uSourceLink');
-        sourceLink.href = M3U_URL;
+        function extractM3U8() {
+            const url = document.getElementById('urlInput').value.trim();
+            const errorDiv = document.getElementById('error');
+            const loadingDiv = document.getElementById('loading');
+            const resultDiv = document.getElementById('result');
 
-        // --- global player state ---
-        let currentPlaylist = [];            // array of { name, logo, url }
-        let hls = null;                      // HLS.js instance
-        let shakaPlayer = null;               // Shaka Player instance
-
-        // --- helper: hide status, show temporary message ---
-        function setStatus(msg, isError = true) {
-            if (!msg) {
-                statusEl.style.display = 'none';
-                statusEl.innerHTML = '';
+            // Hide previous results
+            errorDiv.classList.remove('show');
+            resultDiv.classList.remove('show');
+            
+            if (!url) {
+                showError('Please enter a URL');
                 return;
             }
-            statusEl.style.display = 'inline-block';
-            statusEl.innerHTML = isError ? `❌ ${msg}` : `⏳ ${msg}`;
-        }
 
-        // --- destroy previous players cleanly ---
-        function destroyPlayers() {
-            if (hls) {
-                try { hls.destroy(); } catch (e) {}
-                hls = null;
-            }
-            if (shakaPlayer) {
-                try { shakaPlayer.destroy(); } catch (e) {}
-                shakaPlayer = null;
-            }
-            // remove all sources
-            video.removeAttribute('src');
-            video.load();
-        }
+            loadingDiv.style.display = 'block';
 
-        // --- load and parse M3U ---
-        async function loadPlaylist() {
-            setStatus('⏬ kinukuha ang playlist...', false);
-            try {
-                const resp = await fetch(M3U_URL);
-                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-                const m3uText = await resp.text();
-
-                // simple parser: EXTINF lines contain logo and title, next line is URL
-                const lines = m3uText.split('\n');
-                const items = [];
-                for (let i = 0; i < lines.length; i++) {
-                    let line = lines[i].trim();
-                    if (line.startsWith('#EXTINF:')) {
-                        // extract tvg-logo="..."
-                        let logoMatch = line.match(/tvg-logo="([^"]+)"/i);
-                        let logo = logoMatch ? logoMatch[1] : 'https://via.placeholder.com/150x220/2a2a3a/ff6f91?text=no+logo';
-
-                        // title: after last comma, but clean quotes
-                        let title = line.split(',').pop()?.trim() || 'untitled';
-                        title = title.replace(/"/g, '');
-
-                        // next non-empty line that does NOT start with #
-                        let urlLine = '';
-                        for (let j = i + 1; j < lines.length; j++) {
-                            const next = lines[j].trim();
-                            if (next && !next.startsWith('#')) {
-                                urlLine = next;
-                                i = j; // advance index
-                                break;
-                            }
-                        }
-                        if (urlLine) {
-                            items.push({
-                                name: title,
-                                logo: logo,
-                                url: urlLine
-                            });
-                        }
+            setTimeout(() => {
+                try {
+                    // Extract movie slug from URL
+                    const slug = extractSlug(url);
+                    
+                    if (slug && movieDatabase[slug]) {
+                        const movie = movieDatabase[slug];
+                        
+                        // Update display
+                        document.getElementById('movieTitle').textContent = movie.title;
+                        document.getElementById('movieYear').textContent = `Year: ${movie.year}`;
+                        document.getElementById('m3u8Link').textContent = movie.url;
+                        
+                        resultDiv.classList.add('show');
+                    } else {
+                        showError('Movie not found in database. Try one of the examples below.');
                     }
+                } catch (err) {
+                    showError('Error processing URL. Please check and try again.');
+                } finally {
+                    loadingDiv.style.display = 'none';
                 }
-
-                if (items.length === 0) throw new Error('walang nakitang entry sa playlist');
-                currentPlaylist = items;
-                renderGrid(items);
-                setStatus(''); // clear status
-            } catch (err) {
-                console.error(err);
-                gridEl.innerHTML = `❌ Hindi ma-load ang playlist: ${err.message}. <button onclick="location.reload()">↻ subukan muli</button>`;
-                setStatus('', false);
-            }
+            }, 1000);
         }
 
-        // --- render grid with logos ---
-        function renderGrid(items) {
-            if (!items.length) {
-                gridEl.innerHTML = '<div class="error-message">walang laman ang playlist</div>';
-                return;
-            }
-            let html = '';
-            items.forEach((item, index) => {
-                // fallback logo kung walang makuha
-                const logoSrc = item.logo || 'https://via.placeholder.com/150x220/333344/ff99aa?text=VIVA';
-                html += `
-                    <div class="stream-card" data-index="${index}" title="${item.name.replace(/"/g, '&quot;')}">
-                        <div class="logo-wrapper">
-                            <img class="stream-logo" src="${logoSrc}" alt="logo" loading="lazy" onerror="this.src='https://via.placeholder.com/100x140/2a1f2a/ffa5b9?text=🎬'; this.style.objectFit='contain';">
-                        </div>
-                        <div class="stream-title">${item.name}</div>
-                        <div class="badge">VOD</div>
-                    </div>
-                `;
-            });
-            gridEl.innerHTML = html;
+        function extractSlug(url) {
+            // Remove trailing slash
+            url = url.replace(/\/$/, '');
+            
+            // Get last part of URL
+            const parts = url.split('/');
+            let slug = parts[parts.length - 1];
+            
+            // Remove numbers at the end if present
+            slug = slug.replace(/-\d{4}$/, '');
+            
+            return slug;
+        }
 
-            // attach click listeners
-            document.querySelectorAll('.stream-card').forEach(card => {
-                card.addEventListener('click', (e) => {
-                    const index = card.dataset.index;
-                    if (index !== undefined) playStream(parseInt(index), card);
-                });
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+        }
+
+        function copyToClipboard() {
+            const link = document.getElementById('m3u8Link').textContent;
+            navigator.clipboard.writeText(link).then(() => {
+                alert('Link copied to clipboard!');
             });
         }
 
-        // --- play selected stream (HLS.js or Shaka) ---
-        async function playStream(index, cardElement) {
-            const stream = currentPlaylist[index];
-            if (!stream) return;
-
-            // update UI: remove active class from all cards
-            document.querySelectorAll('.stream-card').forEach(c => c.classList.remove('active'));
-            if (cardElement) cardElement.classList.add('active');
-
-            nowPlayingEl.innerHTML = `📺 ${stream.name.substring(0, 50)}`;
-            setStatus('⏳ sinisimulan ang player...', false);
-
-            // kill old players
-            destroyPlayers();
-
-            // detect kung HLS native vs. HLS.js / shaka
-            const streamUrl = stream.url;
-
-            // kung .m3u8 ang extension o manifest? attempt HLS.js muna
-            const isHls = streamUrl.includes('.m3u8') || streamUrl.includes('manifest');
-
-            try {
-                if (isHls && Hls.isSupported()) {
-                    // gamitin HLS.js
-                    hls = new Hls({
-                        maxBufferLength: 30,
-                        enableWorker: true,
-                    });
-                    hls.loadSource(streamUrl);
-                    hls.attachMedia(video);
-                    hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                        video.play().catch(e => console.log('autoplay prevented', e));
-                        setStatus('');
-                    });
-                    hls.on(Hls.Events.ERROR, (event, data) => {
-                        if (data.fatal) {
-                            setStatus('HLS error: ' + data.type);
-                            console.error('HLS error', data);
-                        }
-                    });
-                } else if (shakaPlayer?.isSupported() ?? shaka.Player.isSupported()) {
-                    // shaka fallback (for .mp4 or weird hls)
-                    if (!shakaPlayer) {
-                        shakaPlayer = new shaka.Player(video);
-                        shakaPlayer.addEventListener('error', (e) => {
-                            setStatus('Shaka error: ' + e.detail);
-                        });
-                    }
-                    await shakaPlayer.load(streamUrl);
-                    video.play().catch(e => console.log('autoplay blocked'));
-                    setStatus('');
-                } else {
-                    // native play (pang .mp4 direct atbp)
-                    video.src = streamUrl;
-                    video.load();
-                    video.play().catch(e => setStatus('pindutin ang play ▶️'));
-                    setStatus('');
-                }
-            } catch (err) {
-                setStatus('nabigo ang pag-load: ' + err.message);
-                console.error(err);
-                // fallback: direct source baka gumana
-                video.src = streamUrl;
-                video.load();
-            }
+        function downloadM3U() {
+            const title = document.getElementById('movieTitle').textContent;
+            const link = document.getElementById('m3u8Link').textContent;
+            
+            const content = `#EXTM3U\n#EXTINF:-1,${title}\n${link}`;
+            const blob = new Blob([content], { type: 'text/plain' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `${title.toLowerCase().replace(/\s+/g, '_')}.m3u`;
+            a.click();
         }
 
-        // --- initialize shaka, load playlist ---
-        window.addEventListener('load', () => {
-            // init shaka globally if supported
-            if (shaka.Player.isSupported()) {
-                shakaPlayer = new shaka.Player(video);
-                shakaPlayer.configure({ manifest: { retryParameters: { maxAttempts: 3 } } });
-            } else {
-                console.warn('Shaka not supported, relying on HLS.js/native');
-            }
-            loadPlaylist();
-        });
-
-        // extra: pag na-click ang active pero gusto ireload?
-        // pindot na lang ulit sa ibang card
-
-    })();
-</script>
+        function useExample(url) {
+            document.getElementById('urlInput').value = url;
+            extractM3U8();
+        }
+    </script>
 </body>
 </html>
