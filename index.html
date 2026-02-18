@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cat3Movie Video Extractor</title>
+    <title>Cat3Movie Browser & Extractor</title>
     <style>
         * {
             margin: 0;
@@ -17,9 +17,11 @@
             padding: 20px;
         }
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
         }
+        
+        /* Header */
         .header {
             background: rgba(255,255,255,0.1);
             backdrop-filter: blur(10px);
@@ -31,130 +33,192 @@
         .header h1 {
             color: white;
             font-size: 28px;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
         }
         .header p {
             color: rgba(255,255,255,0.8);
         }
         
-        .url-bar {
+        /* Browser Controls */
+        .browser-controls {
             display: flex;
             gap: 10px;
             margin-bottom: 20px;
             flex-wrap: wrap;
+        }
+        .url-bar {
+            flex: 1;
+            display: flex;
+            gap: 10px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 5px;
+            min-width: 300px;
         }
         .url-input {
             flex: 1;
-            padding: 15px 20px;
-            border: 2px solid rgba(255,255,255,0.2);
-            border-radius: 10px;
-            background: rgba(255,255,255,0.1);
+            padding: 12px 15px;
+            border: none;
+            background: transparent;
             color: white;
-            font-size: 16px;
-            min-width: 250px;
-        }
-        .url-input::placeholder {
-            color: rgba(255,255,255,0.5);
+            font-size: 15px;
         }
         .url-input:focus {
             outline: none;
-            border-color: #4CAF50;
         }
         .nav-btn {
-            padding: 15px 30px;
+            padding: 12px 20px;
             background: #4CAF50;
             color: white;
             border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: bold;
+            border-radius: 8px;
             cursor: pointer;
-            transition: 0.3s;
+            font-weight: bold;
         }
         .nav-btn:hover {
             background: #45a049;
-            transform: translateY(-2px);
         }
         
-        .proxy-selector {
-            display: flex;
+        /* Category Grid */
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 10px;
             margin-bottom: 20px;
-            flex-wrap: wrap;
         }
-        .proxy-btn {
+        .category-btn {
             background: rgba(255,255,255,0.1);
             border: 1px solid rgba(255,255,255,0.2);
             color: white;
-            padding: 8px 15px;
-            border-radius: 5px;
+            padding: 12px;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 13px;
+            text-align: center;
+            font-weight: bold;
             transition: 0.3s;
         }
-        .proxy-btn:hover {
-            background: rgba(255,255,255,0.2);
+        .category-btn:hover {
+            background: #4CAF50;
+            transform: translateY(-2px);
         }
-        .proxy-btn.active {
+        .category-btn.active {
             background: #4CAF50;
             border-color: #4CAF50;
         }
         
-        .main-content {
+        /* Main Layout */
+        .main-layout {
             display: flex;
             gap: 20px;
-            flex-wrap: wrap;
+            height: 700px;
         }
-        .panel {
-            flex: 1;
-            min-width: 300px;
+        
+        /* Left Panel - Movie List */
+        .movie-list-panel {
+            width: 300px;
             background: rgba(255,255,255,0.1);
             backdrop-filter: blur(10px);
             border-radius: 15px;
             border: 1px solid rgba(255,255,255,0.2);
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
         .panel-header {
             background: rgba(0,0,0,0.3);
-            padding: 15px 20px;
+            padding: 15px;
             color: white;
             font-weight: bold;
             border-bottom: 1px solid rgba(255,255,255,0.2);
         }
-        .panel-content {
-            padding: 20px;
-            max-height: 500px;
-            overflow: auto;
+        .movie-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
         }
-        
-        .source-content {
-            font-family: monospace;
-            font-size: 12px;
-            color: #0ff;
-            white-space: pre-wrap;
-            line-height: 1.5;
-        }
-        .highlight-m3u8 {
-            background: #ff6b6b;
+        .movie-item {
+            background: rgba(255,255,255,0.05);
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            cursor: pointer;
             color: white;
-            padding: 2px 4px;
-            border-radius: 3px;
-            font-weight: bold;
+            transition: 0.3s;
+            border-left: 3px solid transparent;
         }
-        .highlight-mp4 {
-            background: #4ade80;
-            color: black;
-            padding: 2px 4px;
-            border-radius: 3px;
-            font-weight: bold;
+        .movie-item:hover {
+            background: rgba(255,255,255,0.15);
+            transform: translateX(5px);
         }
-        .highlight-sooplive {
-            background: #fbbf24;
-            color: black;
-            padding: 2px 4px;
-            border-radius: 3px;
+        .movie-item.selected {
+            background: rgba(76, 175, 80, 0.3);
+            border-left-color: #4CAF50;
+        }
+        .movie-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .movie-year {
+            font-size: 12px;
+            color: rgba(255,255,255,0.5);
         }
         
+        /* Center Panel - Browser */
+        .browser-panel {
+            flex: 2;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.2);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .browser-tabs {
+            display: flex;
+            background: rgba(0,0,0,0.2);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .tab {
+            padding: 12px 20px;
+            color: rgba(255,255,255,0.7);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+        .tab.active {
+            color: white;
+            border-bottom-color: #4CAF50;
+            background: rgba(0,0,0,0.2);
+        }
+        .browser-frame {
+            flex: 1;
+            background: white;
+            overflow: hidden;
+        }
+        #browserIframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        /* Right Panel - Extractor */
+        .extract-panel {
+            width: 350px;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.2);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .extract-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }
+        
+        /* Video Found Cards */
         .video-found {
             background: rgba(74, 222, 128, 0.1);
             border-left: 4px solid #4ade80;
@@ -175,7 +239,7 @@
             padding: 10px;
             border-radius: 5px;
             font-family: monospace;
-            font-size: 12px;
+            font-size: 11px;
             word-break: break-all;
             margin: 10px 0;
         }
@@ -186,6 +250,15 @@
             border-radius: 8px;
             border: 2px solid #fbbf24;
         }
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        .badge-m3u8 { background: #ff6b6b; color: white; }
+        .badge-mp4 { background: #4ade80; color: black; }
         
         .m3u-output {
             background: rgba(0,0,0,0.3);
@@ -193,55 +266,32 @@
             padding: 15px;
             margin: 15px 0;
         }
-        .m3u-header {
-            color: #4CAF50;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
         .m3u-content {
             background: rgba(0,0,0,0.5);
             color: #ffd700;
             padding: 15px;
             border-radius: 5px;
             font-family: monospace;
-            font-size: 12px;
+            font-size: 11px;
             word-break: break-all;
             max-height: 150px;
             overflow: auto;
-            white-space: pre-wrap;
         }
         
         .btn {
-            padding: 10px 20px;
+            padding: 8px 15px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
             margin: 5px;
             transition: 0.3s;
         }
-        .btn:hover {
-            transform: translateY(-2px);
-        }
-        .btn-primary {
-            background: #3b82f6;
-            color: white;
-        }
-        .btn-success {
-            background: #10b981;
-            color: white;
-        }
-        .btn-warning {
-            background: #f59e0b;
-            color: white;
-        }
-        .btn-group {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-top: 15px;
-        }
+        .btn-primary { background: #3b82f6; color: white; }
+        .btn-success { background: #10b981; color: white; }
+        .btn-warning { background: #f59e0b; color: white; }
+        .btn-group { display: flex; gap: 10px; flex-wrap: wrap; }
         
         .status-bar {
             background: rgba(0,0,0,0.3);
@@ -249,171 +299,182 @@
             border-radius: 10px;
             color: rgba(255,255,255,0.8);
             margin-top: 20px;
-            font-size: 14px;
-        }
-        
-        .manual-area {
-            width: 100%;
-            height: 300px;
-            background: rgba(0,0,0,0.3);
-            color: #0ff;
-            border: 1px solid rgba(255,255,255,0.2);
-            padding: 15px;
-            border-radius: 10px;
-            font-family: monospace;
-            font-size: 12px;
-            margin: 10px 0;
-        }
-        .badge {
-            display: inline-block;
-            padding: 3px 8px;
-            border-radius: 3px;
-            font-size: 11px;
-            font-weight: bold;
-            margin-left: 10px;
-        }
-        .badge-m3u8 {
-            background: #ff6b6b;
-            color: white;
-        }
-        .badge-mp4 {
-            background: #4ade80;
-            color: black;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🎬 Cat3Movie Video Extractor</h1>
-            <p>Auto-detect: .m3u8 | .mp4 | .mkv | sooplive | bigo</p>
+            <h1>🎬 Cat3Movie Video Browser & Extractor</h1>
+            <p>Browse, Click, Extract - All in One!</p>
         </div>
 
-        <div class="url-bar">
-            <input type="text" class="url-input" id="urlInput" placeholder="https://www.cat3movie.club/movie-name/" value="https://www.cat3movie.club/bulong-ng-laman/">
-            <button class="nav-btn" onclick="loadPage()">EXTRACT VIDEO</button>
+        <!-- Browser Controls -->
+        <div class="browser-controls">
+            <div class="url-bar">
+                <input type="text" class="url-input" id="urlInput" value="https://www.cat3movie.club/category/vivamax/">
+                <button class="nav-btn" onclick="navigateToUrl()">GO</button>
+                <button class="nav-btn" onclick="extractCurrentPage()">🔍 EXTRACT</button>
+            </div>
         </div>
 
-        <div class="proxy-selector" id="proxySelector">
-            <button class="proxy-btn active" onclick="setProxy('corsproxy')">🔄 CORS Proxy</button>
-            <button class="proxy-btn" onclick="setProxy('allorigins')">🌐 AllOrigins</button>
-            <button class="proxy-btn" onclick="setProxy('thingproxy')">🔧 ThingProxy</button>
+        <!-- Categories -->
+        <div class="category-grid">
+            <div class="category-btn active" onclick="loadCategory('vivamax')">🎬 Vivamax</div>
+            <div class="category-btn" onclick="loadCategory('korean')">🇰🇷 Korean</div>
+            <div class="category-btn" onclick="loadCategory('philipine')">🇵🇭 Philippine</div>
+            <div class="category-btn" onclick="loadCategory('japan')">🇯🇵 Japan</div>
+            <div class="category-btn" onclick="loadCategory('china')">🇨🇳 China</div>
         </div>
 
-        <div class="main-content">
-            <div class="panel">
-                <div class="panel-header">
-                    📄 VIEW SOURCE | <span style="color: #4ade80;">Hanapin: video files</span>
-                </div>
-                <div class="panel-content">
-                    <div class="source-content" id="sourceContent">
-                        I-paste ang URL at i-click EXTRACT VIDEO
+        <!-- Main Layout -->
+        <div class="main-layout">
+            <!-- Left Panel: Movie List -->
+            <div class="movie-list-panel">
+                <div class="panel-header">📋 Movie List (Click to Browse)</div>
+                <div class="movie-list" id="movieList">
+                    <div class="movie-item" onclick="loadMovie('sagaran')">
+                        <div class="movie-title">Sagaran</div>
+                        <div class="movie-year">2026</div>
+                    </div>
+                    <div class="movie-item" onclick="loadMovie('foreplay')">
+                        <div class="movie-title">Foreplay</div>
+                        <div class="movie-year">2026</div>
+                    </div>
+                    <div class="movie-item" onclick="loadMovie('sirena')">
+                        <div class="movie-title">Sirena</div>
+                        <div class="movie-year">2026</div>
+                    </div>
+                    <div class="movie-item" onclick="loadMovie('patikim-ni-robb-guinto')">
+                        <div class="movie-title">Patikim ni Robb Guinto</div>
+                        <div class="movie-year">2026</div>
+                    </div>
+                    <div class="movie-item" onclick="loadMovie('bagong-tukso')">
+                        <div class="movie-title">Bagong Tukso</div>
+                        <div class="movie-year">2026</div>
+                    </div>
+                    <div class="movie-item" onclick="loadMovie('claim-me')">
+                        <div class="movie-title">Claim Me</div>
+                        <div class="movie-year">2026</div>
+                    </div>
+                    <div class="movie-item" onclick="loadMovie('sulutan')">
+                        <div class="movie-title">Sulutan</div>
+                        <div class="movie-year">2026</div>
+                    </div>
+                    <div class="movie-item" onclick="loadMovie('the-secret-of-maria-makinang')">
+                        <div class="movie-title">The Secret of Maria Makinang</div>
+                        <div class="movie-year">2026</div>
+                    </div>
+                    <div class="movie-item" onclick="loadMovie('pansamantala')">
+                        <div class="movie-title">Pansamantala</div>
+                        <div class="movie-year">2026</div>
+                    </div>
+                    <div class="movie-item" onclick="loadMovie('kinsenas-katapusan-2022')">
+                        <div class="movie-title">Kinsenas, Katapusan</div>
+                        <div class="movie-year">2022</div>
+                    </div>
+                    <div class="movie-item" onclick="loadMovie('stepmom')">
+                        <div class="movie-title">Stepmom</div>
+                        <div class="movie-year">2019</div>
                     </div>
                 </div>
             </div>
 
-            <div class="panel">
-                <div class="panel-header">
-                    🔍 EXTRACTED VIDEOS | <span style="color: #fbbf24;">.m3u8 | .mp4</span>
+            <!-- Center Panel: Browser -->
+            <div class="browser-panel">
+                <div class="browser-tabs">
+                    <div class="tab active" onclick="switchTab('browser')">🌐 Browser</div>
+                    <div class="tab" onclick="switchTab('source')">📄 View Source</div>
                 </div>
-                <div class="panel-content" id="extractContent">
-                    <div style="color: rgba(255,255,255,0.5); text-align: center; padding: 50px 20px;">
-                        ⚡ Maghintay habang naglo-load...
+                <div class="browser-frame" id="browserFrame">
+                    <iframe id="browserIframe" src="about:blank"></iframe>
+                </div>
+            </div>
+
+            <!-- Right Panel: Extractor -->
+            <div class="extract-panel">
+                <div class="panel-header">🔍 Extracted Videos</div>
+                <div class="extract-content" id="extractContent">
+                    <div style="color: rgba(255,255,255,0.5); text-align: center; padding: 20px;">
+                        Click a movie or EXTRACT button
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="status-bar" id="statusBar">
-            ✅ Ready | Auto-detect lahat ng video formats
+            ✅ Ready - Click any movie to browse and extract
         </div>
     </div>
 
     <script>
-        let currentProxy = 'corsproxy';
+        let currentUrl = 'https://www.cat3movie.club/category/vivamax/';
         let currentVideo = '';
         let currentLogo = '';
         let currentTitle = '';
-        let videoFormat = '';
 
-        const proxies = {
-            'corsproxy': 'https://corsproxy.io/?',
-            'allorigins': 'https://api.allorigins.win/raw?url=',
-            'thingproxy': 'https://thingproxy.freeboard.io/fetch/'
+        // Initialize
+        window.onload = function() {
+            navigateToUrl();
         };
 
-        function setProxy(proxy) {
-            currentProxy = proxy;
-            document.querySelectorAll('.proxy-btn').forEach(btn => {
+        function navigateToUrl() {
+            let url = document.getElementById('urlInput').value;
+            currentUrl = url;
+            document.getElementById('browserIframe').src = url;
+            updateStatus(`🌐 Browsing: ${url}`);
+        }
+
+        function loadCategory(category) {
+            let url = `https://www.cat3movie.club/category/${category}/`;
+            document.getElementById('urlInput').value = url;
+            navigateToUrl();
+            
+            // Update active category
+            document.querySelectorAll('.category-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
             event.target.classList.add('active');
-            updateStatus(`✅ Proxy set to: ${proxy}`);
         }
 
-        async function loadPage() {
-            let url = document.getElementById('urlInput').value.trim();
+        function loadMovie(slug) {
+            let url = `https://www.cat3movie.club/${slug}/`;
+            document.getElementById('urlInput').value = url;
+            navigateToUrl();
             
-            if (!url) {
-                alert('Please enter a URL');
-                return;
-            }
-
-            updateStatus('⏳ Loading page source...');
-            document.getElementById('sourceContent').innerHTML = '⏳ Fetching page source...';
-            document.getElementById('extractContent').innerHTML = '<div style="color: rgba(255,255,255,0.5); text-align: center; padding: 50px 20px;">⏳ Extracting videos...</div>';
-
-            let html = null;
+            // Highlight selected movie
+            document.querySelectorAll('.movie-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            event.target.classList.add('selected');
             
-            for (let proxy of ['corsproxy', 'allorigins', 'thingproxy']) {
-                try {
-                    updateStatus(`⏳ Trying ${proxy}...`);
-                    let proxyUrl = proxies[proxy] + encodeURIComponent(url);
-                    
-                    let response = await fetch(proxyUrl, {
-                        headers: {
-                            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-                        }
-                    });
-                    
-                    if (response.ok) {
-                        html = await response.text();
-                        updateStatus(`✅ Loaded using ${proxy}`);
-                        break;
-                    }
-                } catch (e) {
-                    console.log(`${proxy} failed:`, e);
-                }
-            }
+            // Auto-extract after 2 seconds
+            setTimeout(extractCurrentPage, 2000);
+        }
 
-            if (html) {
-                displaySource(html);
-                extractAll(html);
-            } else {
-                showManualMode(url);
+        async function extractCurrentPage() {
+            updateStatus('⏳ Extracting video links...');
+            document.getElementById('extractContent').innerHTML = '<div style="color: rgba(255,255,255,0.5); text-align: center; padding: 20px;">⏳ Extracting...</div>';
+
+            // Use proxy to fetch the page source
+            let proxy = 'https://corsproxy.io/?';
+            let url = document.getElementById('urlInput').value;
+            
+            try {
+                let response = await fetch(proxy + encodeURIComponent(url));
+                let html = await response.text();
+                extractFromHTML(html);
+            } catch (error) {
+                document.getElementById('extractContent').innerHTML = `
+                    <div style="color:#ef4444; padding:20px; text-align:center;">
+                        ❌ Error extracting<br>
+                        <small>${error.message}</small>
+                    </div>
+                `;
             }
         }
 
-        function displaySource(html) {
-            // Format HTML with highlights for different video formats
-            let formatted = html
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                // Highlight .m3u8 files
-                .replace(/(https?:[^"'\s]+\.m3u8[^"'\s]*)/g, '<span class="highlight-m3u8">$1</span>')
-                // Highlight .mp4 files
-                .replace(/(https?:[^"'\s]+\.mp4[^"'\s]*)/g, '<span class="highlight-mp4">$1</span>')
-                // Highlight sooplive
-                .replace(/(https?:[^"'\s]*sooplive[^"'\s]*)/g, '<span class="highlight-sooplive">$1</span>')
-                // Highlight bigo
-                .replace(/(https?:[^"'\s]*bigo[^"'\s]*)/g, '<span class="highlight-sooplive">$1</span>')
-                // Highlight file sources
-                .replace(/("file":"[^"]+")/g, '<span class="highlight-mp4">$1</span>');
-            
-            document.getElementById('sourceContent').innerHTML = formatted;
-        }
-
-        function extractAll(html) {
+        function extractFromHTML(html) {
             let extractDiv = document.getElementById('extractContent');
             let output = '';
 
@@ -422,21 +483,13 @@
             currentLogo = '';
             currentTitle = '';
 
-            // 1. Find ALL video files (m3u8, mp4, mkv, etc)
+            // Find all video files
             let videoPatterns = [
-                // M3U8 patterns
                 { pattern: /file:\s*["']([^"']+\.m3u8[^"']*)["']/g, type: 'm3u8' },
                 { pattern: /(https?:[^"'\s]+\.m3u8[^"'\s]*)/g, type: 'm3u8' },
-                { pattern: /source:\s*["']([^"']+\.m3u8[^"']*)["']/g, type: 'm3u8' },
-                { pattern: /src:\s*["']([^"']+\.m3u8[^"']*)["']/g, type: 'm3u8' },
-                // MP4 patterns
                 { pattern: /file:\s*["']([^"']+\.mp4[^"']*)["']/g, type: 'mp4' },
                 { pattern: /(https?:[^"'\s]+\.mp4[^"'\s]*)/g, type: 'mp4' },
-                { pattern: /source:\s*["']([^"']+\.mp4[^"']*)["']/g, type: 'mp4' },
-                { pattern: /src:\s*["']([^"']+\.mp4[^"']*)["']/g, type: 'mp4' },
-                // Sooplive specific
                 { pattern: /(https?:[^"'\s]*sooplive[^"'\s]+\.(m3u8|mp4)[^"'\s]*)/g, type: 'sooplive' },
-                // Bigo specific
                 { pattern: /(https?:[^"'\s]*bigo[^"'\s]+\.mp4[^"'\s]*)/g, type: 'bigo' }
             ];
 
@@ -447,10 +500,7 @@
                 matches.forEach(match => {
                     let url = match[1] || match[0];
                     if (url && !allVideos.some(v => v.url === url)) {
-                        allVideos.push({
-                            url: url,
-                            type: type
-                        });
+                        allVideos.push({ url, type });
                     }
                 });
             });
@@ -460,31 +510,20 @@
                 output += '<div style="color:#4ade80; font-weight:bold; margin-bottom:10px;">🎥 VIDEO FOUND</div>';
                 
                 allVideos.forEach((video, index) => {
-                    let badgeColor = video.type === 'm3u8' ? '#ff6b6b' : '#4ade80';
-                    output += `<div style="margin-bottom:15px; padding:10px; background:rgba(0,0,0,0.2); border-radius:5px;">`;
-                    output += `<div><span class="badge" style="background:${badgeColor};">${video.type}</span></div>`;
-                    output += `<div class="video-link">${video.url}</div>`;
+                    let badgeClass = video.type === 'm3u8' ? 'badge-m3u8' : 'badge-mp4';
+                    if (index === 0) currentVideo = video.url;
                     
-                    // Save first video as current
-                    if (index === 0) {
-                        currentVideo = video.url;
-                        videoFormat = video.type;
-                    }
+                    output += `<div style="margin-bottom:10px;">`;
+                    output += `<span class="badge ${badgeClass}">${video.type}</span>`;
+                    output += `<div class="video-link">${video.url}</div>`;
                     output += `</div>`;
                 });
-                
-                output += '</div>';
-            } else {
-                output += '<div class="video-found" style="border-left-color:#ef4444;">';
-                output += '<div style="color:#ef4444; font-weight:bold;">❌ NO VIDEO FOUND</div>';
-                output += '<div style="color:rgba(255,255,255,0.5); margin-top:10px;">Try searching: file:, source:, src:, .mp4, .m3u8</div>';
                 output += '</div>';
             }
 
-            // 2. Extract Logo (TMDB)
+            // Find TMDB Logo
             let logoPattern = /https:\/\/image\.tmdb\.org\/[^"'\s]+/g;
             let logos = html.match(logoPattern);
-            
             if (logos && logos.length > 0) {
                 currentLogo = logos[0];
                 output += '<div class="logo-found">';
@@ -494,60 +533,41 @@
                 output += '</div>';
             }
 
-            // 3. Extract Title
+            // Find Title
             let titleMatch = html.match(/<title>(.+?)<\/title>/);
             if (titleMatch) {
                 currentTitle = titleMatch[1].replace(/ \| Cat3Movie.*$/, '').trim();
-                output += '<div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:5px; margin-top:15px;">';
-                output += '<div style="color:rgba(255,255,255,0.5); margin-bottom:5px;">📌 Movie Title</div>';
-                output += `<div style="color:#fff; font-weight:bold;">${currentTitle}</div>`;
-                output += '</div>';
             }
 
-            // 4. Generate M3U (kung may video)
+            // Generate M3U
             if (currentVideo) {
                 let logoTag = currentLogo ? ` tvg-logo="${currentLogo}"` : '';
                 let m3uContent = `#EXTM3U\n#EXTINF:-1${logoTag},${currentTitle || 'Movie'}\n${currentVideo}`;
                 
                 output += '<div class="m3u-output">';
-                output += '<div class="m3u-header">📀 GENERATED M3U FILE</div>';
+                output += '<div class="m3u-header">📀 GENERATED M3U</div>';
                 output += `<div class="m3u-content" id="m3uContent">${m3uContent}</div>`;
                 output += '<div class="btn-group">';
-                output += '<button class="btn btn-primary" onclick="downloadM3U()">⬇️ DOWNLOAD .m3u</button>';
-                output += '<button class="btn btn-success" onclick="copyM3U()">📋 COPY M3U</button>';
+                output += '<button class="btn btn-primary" onclick="downloadM3U()">⬇️ DOWNLOAD</button>';
+                output += '<button class="btn btn-success" onclick="copyM3U()">📋 COPY</button>';
                 output += '</div>';
                 output += '</div>';
             }
 
-            extractDiv.innerHTML = output;
+            extractDiv.innerHTML = output || '<div style="color:rgba(255,255,255,0.5); padding:20px; text-align:center;">❌ No videos found</div>';
+            updateStatus('✅ Extraction complete');
         }
 
-        function showManualMode(url) {
-            document.getElementById('sourceContent').innerHTML = `
-                <div style="color:#ef4444; margin-bottom:10px;">❌ Cannot auto-fetch page</div>
-                <div style="color:rgba(255,255,255,0.5); margin-bottom:15px;">Gawin ito:</div>
-                <ol style="color:rgba(255,255,255,0.8); margin-left:20px;">
-                    <li>I-open sa bagong tab: <b>view-source:${url}</b></li>
-                    <li>Ctrl+A, Ctrl+C (copy lahat)</li>
-                    <li>I-paste sa box sa ibaba</li>
-                </ol>
-            `;
-            
-            document.getElementById('extractContent').innerHTML = `
-                <textarea class="manual-area" id="manualSource" placeholder="I-paste ang HTML source dito..."></textarea>
-                <button class="btn btn-primary" style="width:100%;" onclick="processManualSource()">🔍 EXTRACT VIDEOS</button>
-            `;
-            
-            updateStatus('📝 Manual mode - I-paste ang source');
-        }
-
-        function processManualSource() {
-            let html = document.getElementById('manualSource').value;
-            if (html) {
-                displaySource(html);
-                extractAll(html);
-                updateStatus('✅ Manual source processed');
+        function switchTab(tab) {
+            let iframe = document.getElementById('browserIframe');
+            if (tab === 'source') {
+                iframe.src = `view-source:${currentUrl}`;
+            } else {
+                iframe.src = currentUrl;
             }
+            
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
         }
 
         function downloadM3U() {
@@ -559,18 +579,17 @@
             a.href = URL.createObjectURL(blob);
             a.download = filename;
             a.click();
-            
-            updateStatus('✅ M3U file downloaded');
+            updateStatus('✅ M3U downloaded');
         }
 
         function copyM3U() {
             let m3uContent = document.getElementById('m3uContent').textContent;
             navigator.clipboard.writeText(m3uContent);
-            updateStatus('✅ M3U copied to clipboard');
+            updateStatus('✅ M3U copied');
         }
 
-        function updateStatus(message) {
-            document.getElementById('statusBar').innerHTML = message;
+        function updateStatus(msg) {
+            document.getElementById('statusBar').innerHTML = msg;
         }
     </script>
 </body>
