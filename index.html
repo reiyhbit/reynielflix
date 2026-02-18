@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cat3Movie Browser & Extractor</title>
+    <title>Cat3Movie Site Browser</title>
     <style>
         * {
             margin: 0;
@@ -79,29 +80,23 @@
             background: #45a049;
         }
         
-        /* Category Grid */
-        .category-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        /* Proxy Selector */
+        .proxy-bar {
+            display: flex;
             gap: 10px;
             margin-bottom: 20px;
+            flex-wrap: wrap;
         }
-        .category-btn {
+        .proxy-btn {
             background: rgba(255,255,255,0.1);
             border: 1px solid rgba(255,255,255,0.2);
             color: white;
-            padding: 12px;
-            border-radius: 8px;
+            padding: 8px 15px;
+            border-radius: 5px;
             cursor: pointer;
-            text-align: center;
-            font-weight: bold;
-            transition: 0.3s;
+            font-size: 13px;
         }
-        .category-btn:hover {
-            background: #4CAF50;
-            transform: translateY(-2px);
-        }
-        .category-btn.active {
+        .proxy-btn.active {
             background: #4CAF50;
             border-color: #4CAF50;
         }
@@ -115,7 +110,7 @@
         
         /* Left Panel - Movie List */
         .movie-list-panel {
-            width: 300px;
+            width: 250px;
             background: rgba(255,255,255,0.1);
             backdrop-filter: blur(10px);
             border-radius: 15px;
@@ -138,57 +133,25 @@
         }
         .movie-item {
             background: rgba(255,255,255,0.05);
-            padding: 12px;
-            margin-bottom: 8px;
-            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 5px;
+            border-radius: 5px;
             cursor: pointer;
             color: white;
-            transition: 0.3s;
-            border-left: 3px solid transparent;
+            font-size: 13px;
         }
         .movie-item:hover {
             background: rgba(255,255,255,0.15);
-            transform: translateX(5px);
-        }
-        .movie-item.selected {
-            background: rgba(76, 175, 80, 0.3);
-            border-left-color: #4CAF50;
-        }
-        .movie-title {
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        .movie-year {
-            font-size: 12px;
-            color: rgba(255,255,255,0.5);
         }
         
         /* Center Panel - Browser */
         .browser-panel {
             flex: 2;
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
+            background: white;
             border-radius: 15px;
-            border: 1px solid rgba(255,255,255,0.2);
             overflow: hidden;
             display: flex;
             flex-direction: column;
-        }
-        .browser-tabs {
-            display: flex;
-            background: rgba(0,0,0,0.2);
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-        .tab {
-            padding: 12px 20px;
-            color: rgba(255,255,255,0.7);
-            cursor: pointer;
-            border-bottom: 2px solid transparent;
-        }
-        .tab.active {
-            color: white;
-            border-bottom-color: #4CAF50;
-            background: rgba(0,0,0,0.2);
         }
         .browser-frame {
             flex: 1;
@@ -218,7 +181,6 @@
             padding: 15px;
         }
         
-        /* Video Found Cards */
         .video-found {
             background: rgba(74, 222, 128, 0.1);
             border-left: 4px solid #4ade80;
@@ -286,12 +248,9 @@
             font-size: 12px;
             font-weight: 600;
             margin: 5px;
-            transition: 0.3s;
         }
         .btn-primary { background: #3b82f6; color: white; }
         .btn-success { background: #10b981; color: white; }
-        .btn-warning { background: #f59e0b; color: white; }
-        .btn-group { display: flex; gap: 10px; flex-wrap: wrap; }
         
         .status-bar {
             background: rgba(0,0,0,0.3);
@@ -305,89 +264,46 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🎬 Cat3Movie Video Browser & Extractor</h1>
-            <p>Browse, Click, Extract - All in One!</p>
+            <h1>🎬 Cat3Movie Site Browser</h1>
+            <p>Browse the actual site and extract videos</p>
         </div>
 
         <!-- Browser Controls -->
         <div class="browser-controls">
             <div class="url-bar">
                 <input type="text" class="url-input" id="urlInput" value="https://www.cat3movie.club/category/vivamax/">
-                <button class="nav-btn" onclick="navigateToUrl()">GO</button>
-                <button class="nav-btn" onclick="extractCurrentPage()">🔍 EXTRACT</button>
+                <button class="nav-btn" onclick="browseSite()">🌐 BROWSE</button>
+                <button class="nav-btn" onclick="extractCurrent()">🔍 EXTRACT</button>
             </div>
         </div>
 
-        <!-- Categories -->
-        <div class="category-grid">
-            <div class="category-btn active" onclick="loadCategory('vivamax')">🎬 Vivamax</div>
-            <div class="category-btn" onclick="loadCategory('korean')">🇰🇷 Korean</div>
-            <div class="category-btn" onclick="loadCategory('philipine')">🇵🇭 Philippine</div>
-            <div class="category-btn" onclick="loadCategory('japan')">🇯🇵 Japan</div>
-            <div class="category-btn" onclick="loadCategory('china')">🇨🇳 China</div>
+        <!-- Proxy Selector -->
+        <div class="proxy-bar">
+            <button class="proxy-btn active" onclick="setProxy('corsproxy')">CORS Proxy</button>
+            <button class="proxy-btn" onclick="setProxy('allorigins')">AllOrigins</button>
+            <button class="proxy-btn" onclick="setProxy('thingproxy')">ThingProxy</button>
         </div>
 
         <!-- Main Layout -->
         <div class="main-layout">
-            <!-- Left Panel: Movie List -->
+            <!-- Left Panel: Quick Links -->
             <div class="movie-list-panel">
-                <div class="panel-header">📋 Movie List (Click to Browse)</div>
-                <div class="movie-list" id="movieList">
-                    <div class="movie-item" onclick="loadMovie('sagaran')">
-                        <div class="movie-title">Sagaran</div>
-                        <div class="movie-year">2026</div>
-                    </div>
-                    <div class="movie-item" onclick="loadMovie('foreplay')">
-                        <div class="movie-title">Foreplay</div>
-                        <div class="movie-year">2026</div>
-                    </div>
-                    <div class="movie-item" onclick="loadMovie('sirena')">
-                        <div class="movie-title">Sirena</div>
-                        <div class="movie-year">2026</div>
-                    </div>
-                    <div class="movie-item" onclick="loadMovie('patikim-ni-robb-guinto')">
-                        <div class="movie-title">Patikim ni Robb Guinto</div>
-                        <div class="movie-year">2026</div>
-                    </div>
-                    <div class="movie-item" onclick="loadMovie('bagong-tukso')">
-                        <div class="movie-title">Bagong Tukso</div>
-                        <div class="movie-year">2026</div>
-                    </div>
-                    <div class="movie-item" onclick="loadMovie('claim-me')">
-                        <div class="movie-title">Claim Me</div>
-                        <div class="movie-year">2026</div>
-                    </div>
-                    <div class="movie-item" onclick="loadMovie('sulutan')">
-                        <div class="movie-title">Sulutan</div>
-                        <div class="movie-year">2026</div>
-                    </div>
-                    <div class="movie-item" onclick="loadMovie('the-secret-of-maria-makinang')">
-                        <div class="movie-title">The Secret of Maria Makinang</div>
-                        <div class="movie-year">2026</div>
-                    </div>
-                    <div class="movie-item" onclick="loadMovie('pansamantala')">
-                        <div class="movie-title">Pansamantala</div>
-                        <div class="movie-year">2026</div>
-                    </div>
-                    <div class="movie-item" onclick="loadMovie('kinsenas-katapusan-2022')">
-                        <div class="movie-title">Kinsenas, Katapusan</div>
-                        <div class="movie-year">2022</div>
-                    </div>
-                    <div class="movie-item" onclick="loadMovie('stepmom')">
-                        <div class="movie-title">Stepmom</div>
-                        <div class="movie-year">2019</div>
-                    </div>
+                <div class="panel-header">📌 Quick Links</div>
+                <div class="movie-list">
+                    <div class="movie-item" onclick="loadUrl('https://www.cat3movie.club/category/vivamax/')">🎬 Vivamax Home</div>
+                    <div class="movie-item" onclick="loadUrl('https://www.cat3movie.club/category/korean/')">🇰🇷 Korean</div>
+                    <div class="movie-item" onclick="loadUrl('https://www.cat3movie.club/category/philipine/')">🇵🇭 Philippine</div>
+                    <div class="movie-item" onclick="loadUrl('https://www.cat3movie.club/sagaran-mov18plus-full-vivamax-adult-18-movie-online/')">🎥 Sagaran</div>
+                    <div class="movie-item" onclick="loadUrl('https://www.cat3movie.club/claim-me/')">🎥 Claim Me</div>
+                    <div class="movie-item" onclick="loadUrl('https://www.cat3movie.club/bulong-ng-laman/')">🎥 Bulong Ng Laman</div>
+                    <div class="movie-item" onclick="loadUrl('https://www.cat3movie.club/kinsenas-katapusan-2022/')">🎥 Kinsenas</div>
                 </div>
             </div>
 
-            <!-- Center Panel: Browser -->
+            <!-- Center Panel: Live Browser -->
             <div class="browser-panel">
-                <div class="browser-tabs">
-                    <div class="tab active" onclick="switchTab('browser')">🌐 Browser</div>
-                    <div class="tab" onclick="switchTab('source')">📄 View Source</div>
-                </div>
-                <div class="browser-frame" id="browserFrame">
-                    <iframe id="browserIframe" src="about:blank"></iframe>
+                <div class="browser-frame">
+                    <iframe id="browserIframe" sandbox="allow-same-origin allow-scripts allow-popups allow-forms" style="width:100%; height:100%; border:none;"></iframe>
                 </div>
             </div>
 
@@ -396,79 +312,106 @@
                 <div class="panel-header">🔍 Extracted Videos</div>
                 <div class="extract-content" id="extractContent">
                     <div style="color: rgba(255,255,255,0.5); text-align: center; padding: 20px;">
-                        Click a movie or EXTRACT button
+                        Click EXTRACT after browsing
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="status-bar" id="statusBar">
-            ✅ Ready - Click any movie to browse and extract
+            ✅ Ready - Enter URL and click BROWSE
         </div>
     </div>
 
     <script>
+        let currentProxy = 'corsproxy';
         let currentUrl = 'https://www.cat3movie.club/category/vivamax/';
         let currentVideo = '';
         let currentLogo = '';
         let currentTitle = '';
 
-        // Initialize
-        window.onload = function() {
-            navigateToUrl();
+        const proxies = {
+            'corsproxy': 'https://corsproxy.io/?',
+            'allorigins': 'https://api.allorigins.win/raw?url=',
+            'thingproxy': 'https://thingproxy.freeboard.io/fetch/'
         };
 
-        function navigateToUrl() {
-            let url = document.getElementById('urlInput').value;
-            currentUrl = url;
-            document.getElementById('browserIframe').src = url;
-            updateStatus(`🌐 Browsing: ${url}`);
-        }
-
-        function loadCategory(category) {
-            let url = `https://www.cat3movie.club/category/${category}/`;
-            document.getElementById('urlInput').value = url;
-            navigateToUrl();
-            
-            // Update active category
-            document.querySelectorAll('.category-btn').forEach(btn => {
+        function setProxy(proxy) {
+            currentProxy = proxy;
+            document.querySelectorAll('.proxy-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
             event.target.classList.add('active');
+            updateStatus(`✅ Proxy set to: ${proxy}`);
         }
 
-        function loadMovie(slug) {
-            let url = `https://www.cat3movie.club/${slug}/`;
+        function browseSite() {
+            let url = document.getElementById('urlInput').value.trim();
+            if (!url) return;
+            
+            currentUrl = url;
+            
+            // Use Google CORS proxy to load the site
+            let proxyUrl = 'https://cors-anywhere.herokuapp.com/' + url;
+            
+            // Load in iframe (try direct muna)
+            document.getElementById('browserIframe').src = url;
+            
+            updateStatus(`🌐 Loading: ${url}`);
+            
+            // But we'll fetch via proxy for extraction
+            fetchViaProxy(url);
+        }
+
+        function loadUrl(url) {
             document.getElementById('urlInput').value = url;
-            navigateToUrl();
-            
-            // Highlight selected movie
-            document.querySelectorAll('.movie-item').forEach(item => {
-                item.classList.remove('selected');
-            });
-            event.target.classList.add('selected');
-            
-            // Auto-extract after 2 seconds
-            setTimeout(extractCurrentPage, 2000);
+            browseSite();
         }
 
-        async function extractCurrentPage() {
-            updateStatus('⏳ Extracting video links...');
+        async function fetchViaProxy(url) {
+            try {
+                let proxyUrl = proxies[currentProxy] + encodeURIComponent(url);
+                let response = await fetch(proxyUrl);
+                let html = await response.text();
+                
+                // Store for extraction
+                window.currentPageHTML = html;
+                updateStatus('✅ Page loaded for extraction');
+            } catch (error) {
+                console.log('Proxy fetch failed:', error);
+            }
+        }
+
+        async function extractCurrent() {
+            let url = document.getElementById('urlInput').value.trim();
+            
+            updateStatus('⏳ Extracting videos...');
             document.getElementById('extractContent').innerHTML = '<div style="color: rgba(255,255,255,0.5); text-align: center; padding: 20px;">⏳ Extracting...</div>';
 
-            // Use proxy to fetch the page source
-            let proxy = 'https://corsproxy.io/?';
-            let url = document.getElementById('urlInput').value;
-            
             try {
-                let response = await fetch(proxy + encodeURIComponent(url));
-                let html = await response.text();
+                // Try to use stored HTML first
+                let html = window.currentPageHTML;
+                
+                if (!html) {
+                    // If no stored HTML, fetch via proxy
+                    let proxyUrl = proxies[currentProxy] + encodeURIComponent(url);
+                    let response = await fetch(proxyUrl);
+                    html = await response.text();
+                }
+                
                 extractFromHTML(html);
             } catch (error) {
+                // If all fails, show manual method
                 document.getElementById('extractContent').innerHTML = `
-                    <div style="color:#ef4444; padding:20px; text-align:center;">
-                        ❌ Error extracting<br>
-                        <small>${error.message}</small>
+                    <div style="color:#ef4444; padding:15px; text-align:center;">
+                        ❌ Cannot auto-extract<br>
+                        <small>${error.message}</small><br><br>
+                        <b>Manual Method:</b><br>
+                        1. Right-click page → View Page Source<br>
+                        2. Ctrl+A, Ctrl+C<br>
+                        3. Paste below:<br>
+                        <textarea id="manualHTML" style="width:100%; height:150px; margin-top:10px; background:#333; color:#0ff; border:1px solid #666; padding:10px;"></textarea><br>
+                        <button class="btn btn-primary" onclick="processManual()">Process HTML</button>
                     </div>
                 `;
             }
@@ -489,6 +432,7 @@
                 { pattern: /(https?:[^"'\s]+\.m3u8[^"'\s]*)/g, type: 'm3u8' },
                 { pattern: /file:\s*["']([^"']+\.mp4[^"']*)["']/g, type: 'mp4' },
                 { pattern: /(https?:[^"'\s]+\.mp4[^"'\s]*)/g, type: 'mp4' },
+                { pattern: /sources:\s*\[\s*\{[^}]*file:\s*["']([^"']+)["']/g, type: 'jwplayer' },
                 { pattern: /(https?:[^"'\s]*sooplive[^"'\s]+\.(m3u8|mp4)[^"'\s]*)/g, type: 'sooplive' },
                 { pattern: /(https?:[^"'\s]*bigo[^"'\s]+\.mp4[^"'\s]*)/g, type: 'bigo' }
             ];
@@ -513,7 +457,7 @@
                     let badgeClass = video.type === 'm3u8' ? 'badge-m3u8' : 'badge-mp4';
                     if (index === 0) currentVideo = video.url;
                     
-                    output += `<div style="margin-bottom:10px;">`;
+                    output += `<div style="margin-bottom:10px; padding:5px; background:rgba(0,0,0,0.2); border-radius:5px;">`;
                     output += `<span class="badge ${badgeClass}">${video.type}</span>`;
                     output += `<div class="video-link">${video.url}</div>`;
                     output += `</div>`;
@@ -558,16 +502,11 @@
             updateStatus('✅ Extraction complete');
         }
 
-        function switchTab(tab) {
-            let iframe = document.getElementById('browserIframe');
-            if (tab === 'source') {
-                iframe.src = `view-source:${currentUrl}`;
-            } else {
-                iframe.src = currentUrl;
+        function processManual() {
+            let html = document.getElementById('manualHTML').value;
+            if (html) {
+                extractFromHTML(html);
             }
-            
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            event.target.classList.add('active');
         }
 
         function downloadM3U() {
@@ -591,6 +530,11 @@
         function updateStatus(msg) {
             document.getElementById('statusBar').innerHTML = msg;
         }
+
+        // Load initial page
+        window.onload = function() {
+            browseSite();
+        };
     </script>
 </body>
 </html>
