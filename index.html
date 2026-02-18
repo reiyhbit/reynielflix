@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cat3Movie M3U8 Extractor</title>
+    <title>M3U8 Finder for Cat3Movie</title>
     <style>
         * {
             margin: 0;
@@ -11,416 +11,369 @@
             box-sizing: border-box;
         }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', sans-serif;
+            background: #1a1a2e;
             min-height: 100vh;
             padding: 20px;
         }
         .container {
-            max-width: 800px;
-            margin: 50px auto;
-            background: white;
+            max-width: 700px;
+            margin: 30px auto;
+            background: #16213e;
             border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 1px solid #0f3460;
         }
         h1 {
-            color: #333;
+            color: #e94560;
             margin-bottom: 10px;
             font-size: 28px;
         }
         .subtitle {
-            color: #666;
-            margin-bottom: 30px;
-            font-size: 16px;
+            color: #aaa;
+            margin-bottom: 25px;
+            font-size: 14px;
         }
-        .input-group {
+        .input-area {
+            background: #0f3460;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            color: #fff;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        .link-input {
             display: flex;
             gap: 10px;
-            margin-bottom: 20px;
             flex-wrap: wrap;
         }
-        #urlInput {
+        #movieLink {
             flex: 1;
-            padding: 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 16px;
-            transition: border-color 0.3s;
+            padding: 12px 15px;
+            border: 2px solid #1a1a2e;
+            border-radius: 8px;
+            background: #16213e;
+            color: #fff;
+            font-size: 15px;
             min-width: 250px;
         }
-        #urlInput:focus {
+        #movieLink:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: #e94560;
         }
         button {
-            padding: 15px 30px;
-            background: #667eea;
+            padding: 12px 25px;
+            background: #e94560;
             color: white;
             border: none;
-            border-radius: 10px;
+            border-radius: 8px;
             font-size: 16px;
-            font-weight: 600;
+            font-weight: bold;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: 0.3s;
         }
         button:hover {
-            background: #5a67d8;
+            background: #ff6b8b;
+            transform: translateY(-2px);
         }
-        button:disabled {
-            background: #a0a0a0;
-            cursor: not-allowed;
-        }
-        .loading {
-            display: none;
-            text-align: center;
-            margin: 20px 0;
-        }
-        .loading-spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 10px;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        .result {
-            margin-top: 30px;
-            display: none;
-        }
-        .result.show {
-            display: block;
-        }
-        .movie-info {
-            background: #f8f9fa;
+        .result-box {
+            background: #0f3460;
             border-radius: 10px;
             padding: 20px;
+            margin-top: 20px;
+        }
+        .command-section {
+            background: #1a1a2e;
+            border-radius: 8px;
+            padding: 15px;
             margin-bottom: 20px;
+            border-left: 4px solid #e94560;
         }
-        .movie-title {
-            font-size: 20px;
-            font-weight: 600;
-            color: #333;
+        .command-title {
+            color: #e94560;
+            font-weight: bold;
             margin-bottom: 10px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
-        .movie-year {
-            color: #666;
-            margin-bottom: 15px;
-        }
-        .m3u8-box {
-            background: #2d3748;
-            color: #fff;
-            padding: 15px;
-            border-radius: 8px;
-            word-break: break-all;
+        .command-box {
+            background: #16213e;
+            padding: 12px;
+            border-radius: 5px;
             font-family: monospace;
+            color: #0ff;
+            word-break: break-all;
             font-size: 14px;
-            margin: 15px 0;
+            border: 1px solid #333;
+            margin-bottom: 10px;
         }
-        .copy-btn {
-            background: #48bb78;
-            margin-right: 10px;
-        }
-        .copy-btn:hover {
-            background: #38a169;
-        }
-        .download-btn {
-            background: #4299e1;
-        }
-        .download-btn:hover {
-            background: #3182ce;
-        }
-        .error {
-            background: #fed7d7;
-            color: #c53030;
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            background: #1a1a2e;
             padding: 15px;
             border-radius: 8px;
-            margin: 20px 0;
-            display: none;
+            flex-wrap: wrap;
         }
-        .error.show {
-            display: block;
-        }
-        .examples {
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #e0e0e0;
-        }
-        .examples h3 {
-            color: #333;
-            margin-bottom: 15px;
-        }
-        .example-item {
-            background: #f8f9fa;
-            padding: 10px 15px;
+        .logo-preview {
+            width: 80px;
+            height: 80px;
+            background: #16213e;
             border-radius: 8px;
-            margin-bottom: 10px;
-            cursor: pointer;
-            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #e94560;
+            overflow: hidden;
         }
-        .example-item:hover {
-            background: #e9ecef;
+        .logo-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
-        .example-url {
-            font-size: 14px;
-            color: #667eea;
+        .logo-placeholder {
+            color: #666;
+            font-size: 12px;
+            text-align: center;
+        }
+        .logo-info {
+            flex: 1;
+        }
+        .logo-url {
+            background: #16213e;
+            padding: 8px 12px;
+            border-radius: 5px;
+            color: #ffd700;
+            font-family: monospace;
+            font-size: 13px;
             word-break: break-all;
+        }
+        .quick-buttons {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+        .quick-btn {
+            background: #1a1a2e;
+            color: #fff;
+            border: 1px solid #e94560;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .quick-btn:hover {
+            background: #e94560;
         }
         .footer {
             text-align: center;
-            margin-top: 30px;
+            margin-top: 20px;
             color: #666;
-            font-size: 14px;
+            font-size: 12px;
         }
-        .stats {
-            background: #e6f7ff;
-            border-radius: 8px;
-            padding: 10px 15px;
-            margin-bottom: 20px;
-            color: #0050b3;
-            font-size: 14px;
+        .copy-btn {
+            background: #4a4a4a;
+            padding: 5px 10px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+        .copy-btn:hover {
+            background: #666;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🎬 Cat3Movie M3U8 Extractor</h1>
-        <p class="subtitle">I-paste ang movie URL para makuha ang direct M3U8 link</p>
+        <h1>🔍 M3U8 Finder</h1>
+        <p class="subtitle">I-paste ang Cat3Movie link at kukunin ko ang source + logo</p>
 
-        <div class="stats" id="stats">
-            📊 15 movies available sa database
-        </div>
-
-        <div class="input-group">
-            <input type="url" id="urlInput" placeholder="https://www.cat3movie.club/movie-name/" value="">
-            <button onclick="extractM3U8()">Extract M3U8</button>
-        </div>
-
-        <div class="loading" id="loading">
-            <div class="loading-spinner"></div>
-            <p>Kinukuha ang video link...</p>
-        </div>
-
-        <div class="error" id="error"></div>
-
-        <div class="result" id="result">
-            <div class="movie-info">
-                <div class="movie-title" id="movieTitle"></div>
-                <div class="movie-year" id="movieYear"></div>
-                <div class="m3u8-box" id="m3u8Link"></div>
-                <button class="copy-btn" onclick="copyToClipboard()">📋 Copy Link</button>
-                <button class="download-btn" onclick="downloadM3U()">⬇️ Download .m3u</button>
+        <div class="input-area">
+            <label>📎 Movie URL:</label>
+            <div class="link-input">
+                <input type="url" id="movieLink" placeholder="https://www.cat3movie.club/movie-name/" value="">
+                <button onclick="processLink()">Find M3U8</button>
             </div>
         </div>
 
-        <div class="examples">
-            <h3>📌 Example Movies (click to try):</h3>
-            <div class="example-item" onclick="useExample('https://www.cat3movie.club/sagaran-mov18plus-full-vivamax-adult-18-movie-online/')">
-                <div>Sagaran (2026)</div>
-                <div class="example-url">/sagaran-mov18plus-full-vivamax-adult-18-movie-online/</div>
+        <div class="quick-buttons">
+            <span class="quick-btn" onclick="useExample('sagaran')">Sagaran</span>
+            <span class="quick-btn" onclick="useExample('foreplay')">Foreplay</span>
+            <span class="quick-btn" onclick="useExample('sirena')">Sirena</span>
+            <span class="quick-btn" onclick="useExample('stepmom')">Stepmom</span>
+            <span class="quick-btn" onclick="useExample('kinsenas')">Kinsenas</span>
+        </div>
+
+        <div class="result-box" id="result" style="display: none;">
+            <div class="command-section">
+                <div class="command-title">📋 STEP 1: View Source Command</div>
+                <div class="command-box" id="viewSourceCmd">view-source:https://...</div>
+                <button class="copy-btn" onclick="copyCommand('viewSource')">Copy</button>
             </div>
-            <div class="example-item" onclick="useExample('https://www.cat3movie.club/kinsenas-katapusan-2022/')">
-                <div>Kinsenas, Katapusan (2022)</div>
-                <div class="example-url">/kinsenas-katapusan-2022/</div>
+
+            <div class="command-section">
+                <div class="command-title">🔎 STEP 2: Hanapin ito sa page source (Ctrl+F)</div>
+                <div class="command-box" id="searchTerm">m3u8</div>
+                <button class="copy-btn" onclick="copyCommand('searchTerm')">Copy</button>
             </div>
-            <div class="example-item" onclick="useExample('https://www.cat3movie.club/stepmom/')">
-                <div>Stepmom - 새엄마들 (2019)</div>
-                <div class="example-url">/stepmom/</div>
+
+            <div class="command-section">
+                <div class="command-title">🎬 STEP 3: M3U8 Link (kung may nakita)</div>
+                <div class="command-box" id="m3u8Link">https://vod-normal...manifest.m3u8?rp=o00</div>
+                <button class="copy-btn" onclick="copyCommand('m3u8')">Copy</button>
+            </div>
+
+            <div class="logo-section">
+                <div class="logo-preview" id="logoPreview">
+                    <img id="logoImage" src="" alt="movie logo" style="display: none;">
+                    <div class="logo-placeholder" id="logoPlaceholder">🎬</div>
+                </div>
+                <div class="logo-info">
+                    <div style="color:#fff; margin-bottom:5px; font-weight:bold;" id="movieTitleDisplay">Movie Title</div>
+                    <div class="logo-url" id="logoUrl">https://image.tmdb.org/...</div>
+                    <button class="copy-btn" style="margin-top:8px;" onclick="copyCommand('logo')">Copy Logo URL</button>
+                </div>
             </div>
         </div>
 
         <div class="footer">
-            ⚡ Quick & Easy M3U8 Extractor for Cat3Movie
+            ⚡ I-paste ang link > Copy view-source > Hanapin ang "m3u8" > Yun na!
         </div>
     </div>
 
     <script>
-        // Database ng mga nakuha nating links
-        const movieDatabase = {
-            // 2026 Vivamax Movies
+        // Database ng mga movies (galing sa mga nakuha natin)
+        const movies = {
             'sagaran': {
-                title: 'Sagaran',
-                year: '2026',
+                title: 'Sagaran (2026)',
                 url: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2026/0207/00/1770390569432463.mp4/manifest.m3u8?rp=o00',
-                logo: 'https://image.tmdb.org/t/p/w500/x44TC1EEYDR7Qo6ZGECabsnzkdQ.jpg'
+                logo: 'https://image.tmdb.org/t/p/w500/x44TC1EEYDR7Qo6ZGECabsnzkdQ.jpg',
+                slug: 'sagaran-mov18plus-full-vivamax-adult-18-movie-online'
             },
             'foreplay': {
-                title: 'Foreplay',
-                year: '2026',
+                title: 'Foreplay (2026)',
                 url: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2026/0206/23/1770389835802692.mp4/manifest.m3u8?rp=o00',
-                logo: 'https://image.tmdb.org/t/p/w500/gO76jmB6I7vV6w3lSH6F86mktC5.jpg'
+                logo: 'https://image.tmdb.org/t/p/w500/gO76jmB6I7vV6w3lSH6F86mktC5.jpg',
+                slug: 'foreplay'
             },
             'sirena': {
-                title: 'Sirena',
-                year: '2026',
+                title: 'Sirena (2026)',
                 url: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2026/0131/13/1769834910463593.mp4/manifest.m3u8?rp=o00',
-                logo: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgmAqgjzX_2EmNP2QGcUPHFcMj84foHzq1DL1RtbJ0PqiSC6Dc2XX8m67WHMdMXjn1UlFXYhz3MxbrGgB1d3V_JWQxVBzT4rLOE9_9mTlRIGxggLQXWxUantcWNDXZ_LKMP98DSeVMxQY40ps69of5LC4Wf3pIT2Jgh27x37GEI4aUURpLf_u7kKhN4NAE/s1600/Sirena.jpg'
+                logo: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgmAqgjzX_2EmNP2QGcUPHFcMj84foHzq1DL1RtbJ0PqiSC6Dc2XX8m67WHMdMXjn1UlFXYhz3MxbrGgB1d3V_JWQxVBzT4rLOE9_9mTlRIGxggLQXWxUantcWNDXZ_LKMP98DSeVMxQY40ps69of5LC4Wf3pIT2Jgh27x37GEI4aUURpLf_u7kKhN4NAE/s1600/Sirena.jpg',
+                slug: 'sirena'
             },
-            'patikim-ni-robb-guinto': {
-                title: 'Patikim ni Robb Guinto',
-                year: '2026',
+            'patikim': {
+                title: 'Patikim ni Robb Guinto (2026)',
                 url: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2026/0131/13/1769834663691618.mp4/manifest.m3u8?rp=o00',
-                logo: 'https://image.tmdb.org/t/p/w500/4rL4XpHnngzElgdYDqaDtZnmtEH.jpg'
+                logo: 'https://image.tmdb.org/t/p/w500/4rL4XpHnngzElgdYDqaDtZnmtEH.jpg',
+                slug: 'patikim-ni-robb-guinto'
             },
             'bagong-tukso': {
-                title: 'Bagong Tukso',
-                year: '2026',
+                title: 'Bagong Tukso (2026)',
                 url: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2026/0126/00/1769353229957853.mp4/manifest.m3u8?rp=o00',
-                logo: 'https://image.tmdb.org/t/p/w500/t7nlhiZNaGdXPmbsTM872VlZgXD.jpg'
+                logo: 'https://image.tmdb.org/t/p/w500/t7nlhiZNaGdXPmbsTM872VlZgXD.jpg',
+                slug: 'bagong-tukso'
             },
-            'claim-me': {
-                title: 'Claim Me',
-                year: '2026',
-                url: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2026/0121/14/1768573339995794.mp4/manifest.m3u8?rp=o00',
-                logo: 'https://image.tmdb.org/t/p/w500/2YZ24F49pRkNb45YWI6yckrTYE.jpg'
-            },
-            'sulutan': {
-                title: 'Sulutan',
-                year: '2026',
-                url: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2026/0118/05/1767805994517754.mp4/manifest.m3u8?rp=o00',
-                logo: 'https://image.tmdb.org/t/p/w500/kd11696ab32WhHUeq5ZkWi9k09Y.jpg'
-            },
-            'the-secret-of-maria-makinang': {
-                title: 'The Secret of Maria Makinang',
-                year: '2026',
-                url: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2026/0118/05/1767805962533167.mp4/manifest.m3u8?rp=o00',
-                logo: 'https://image.tmdb.org/t/p/w500/s6uqdKGDnDml0RYXXza9unzJpVQ.jpg'
-            },
-            'pansamantala': {
-                title: 'Pansamantala',
-                year: '2026',
-                url: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2026/0111/16/1767040489304349.mp4/manifest.m3u8?rp=o00',
-                logo: 'https://image.tmdb.org/t/p/w500/oa9YIxSVw7FsVIWaObFiO0RkKv0.jpg'
-            },
-            // 2025 Movies
-            'bugaw': {
-                title: 'Bugaw',
-                year: '2025',
-                url: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2025/1229/16/1764521452947468.mp4/manifest.m3u8?rp=o00',
-                logo: 'https://image.tmdb.org/t/p/w500/kGdFWr1bWqFmhi5F5SVCfK5p1Iz.jpg'
-            },
-            'hubad-na-puso': {
-                title: 'Hubad na Puso',
-                year: '2025',
-                url: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2025/1222/16/1763696024485937.mp4/manifest.m3u8?rp=o00',
-                logo: 'https://image.tmdb.org/t/p/w500/sVkj5I1kY5c3zM9zGjfX2bY5c3z.jpg'
-            },
-            'selos': {
-                title: 'Selos',
-                year: '2025',
-                url: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2025/1215/16/1762953184648419.mp4/manifest.m3u8?rp=o00',
-                logo: 'https://image.tmdb.org/t/p/w500/1n7O7YjK9LqXQK7XgXgXgXgXgXg.jpg'
-            },
-            // Korean Movies
             'stepmom': {
-                title: 'Stepmom - 새엄마들',
-                year: '2019',
+                title: 'Stepmom - 새엄마들 (2019)',
                 url: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2026/0206/22/1770389524012954.mp4/manifest.m3u8?rp=o00',
-                logo: 'https://1.bp.blogspot.com/-b_5eBAogJf8/Xna1_iOWahI/AAAAAAAABMA/H8UvYeeNtOEpEBPTcKV92lkqtDTkrrWMACNcBGAsYHQ/s1600/Stepmom%2B2019.jpg'
+                logo: 'https://1.bp.blogspot.com/-b_5eBAogJf8/Xna1_iOWahI/AAAAAAAABMA/H8UvYeeNtOEpEBPTcKV92lkqtDTkrrWMACNcBGAsYHQ/s1600/Stepmom%2B2019.jpg',
+                slug: 'stepmom'
             },
-            'big-breasted-mom': {
-                title: 'Big Breasted Mom - 가슴 큰 엄마들',
-                year: '2020',
-                url: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2026/0206/21/1770389240261605.mp4/manifest.m3u8?rp=o00',
-                logo: 'https://1.bp.blogspot.com/-fRv6pR6-Wkk/XnbMDAYuweI/AAAAAAAABNo/5vboZBuf2K41cvHaPQeSjKciK5fI-unAwCNcBGAsYHQ/s1600/Big%2BBreasted%2BMom.jpg'
-            },
-            'kinsenas-katapusan-2022': {
-                title: 'Kinsenas, Katapusan',
-                year: '2022',
+            'kinsenas': {
+                title: 'Kinsenas, Katapusan (2022)',
                 url: 'https://bigf.bigo.sg/asia_live/V4s7/0JQ5zV.mp4',
-                logo: 'https://media.themoviedb.org/t/p/w440_and_h660_face/lUGrP7WkSCjCVp9pB5Biubw2CKV.jpg'
+                logo: 'https://media.themoviedb.org/t/p/w440_and_h660_face/lUGrP7WkSCjCVp9pB5Biubw2CKV.jpg',
+                slug: 'kinsenas-katapusan-2022'
             }
         };
 
-        function extractM3U8() {
-            const url = document.getElementById('urlInput').value.trim();
-            const errorDiv = document.getElementById('error');
-            const loadingDiv = document.getElementById('loading');
-            const resultDiv = document.getElementById('result');
-
-            // Hide previous results
-            errorDiv.classList.remove('show');
-            resultDiv.classList.remove('show');
+        function processLink() {
+            const link = document.getElementById('movieLink').value.trim();
             
-            if (!url) {
-                showError('Please enter a URL');
+            if (!link) {
+                alert('Please paste a link!');
                 return;
             }
 
-            loadingDiv.style.display = 'block';
-
-            setTimeout(() => {
-                try {
-                    // Extract movie slug from URL
-                    const slug = extractSlug(url);
-                    
-                    if (slug && movieDatabase[slug]) {
-                        const movie = movieDatabase[slug];
-                        
-                        // Update display
-                        document.getElementById('movieTitle').textContent = movie.title;
-                        document.getElementById('movieYear').textContent = `Year: ${movie.year}`;
-                        document.getElementById('m3u8Link').textContent = movie.url;
-                        
-                        resultDiv.classList.add('show');
-                    } else {
-                        showError('Movie not found in database. Try one of the examples below.');
-                    }
-                } catch (err) {
-                    showError('Error processing URL. Please check and try again.');
-                } finally {
-                    loadingDiv.style.display = 'none';
+            // Hanapin kung anong movie
+            let foundMovie = null;
+            
+            for (let key in movies) {
+                if (link.includes(movies[key].slug)) {
+                    foundMovie = movies[key];
+                    break;
                 }
-            }, 1000);
+            }
+
+            if (foundMovie) {
+                displayResult(foundMovie, link);
+            } else {
+                // Generic display
+                displayGeneric(link);
+            }
         }
 
-        function extractSlug(url) {
-            // Remove trailing slash
-            url = url.replace(/\/$/, '');
+        function displayResult(movie, originalLink) {
+            document.getElementById('viewSourceCmd').textContent = `view-source:${originalLink}`;
+            document.getElementById('searchTerm').textContent = 'm3u8';
+            document.getElementById('m3u8Link').textContent = movie.url;
+            document.getElementById('movieTitleDisplay').textContent = movie.title;
+            document.getElementById('logoUrl').textContent = movie.logo;
             
-            // Get last part of URL
-            const parts = url.split('/');
-            let slug = parts[parts.length - 1];
+            const logoImg = document.getElementById('logoImage');
+            logoImg.src = movie.logo;
+            logoImg.style.display = 'block';
+            document.getElementById('logoPlaceholder').style.display = 'none';
             
-            // Remove numbers at the end if present
-            slug = slug.replace(/-\d{4}$/, '');
-            
-            return slug;
+            document.getElementById('result').style.display = 'block';
         }
 
-        function showError(message) {
-            const errorDiv = document.getElementById('error');
-            errorDiv.textContent = message;
-            errorDiv.classList.add('show');
+        function displayGeneric(link) {
+            document.getElementById('viewSourceCmd').textContent = `view-source:${link}`;
+            document.getElementById('searchTerm').textContent = 'm3u8';
+            document.getElementById('m3u8Link').textContent = 'Hanapin sa page source (Ctrl+F)';
+            document.getElementById('movieTitleDisplay').textContent = 'Unknown Movie';
+            document.getElementById('logoUrl').textContent = 'No logo available';
+            
+            document.getElementById('logoImage').style.display = 'none';
+            document.getElementById('logoPlaceholder').style.display = 'block';
+            document.getElementById('logoPlaceholder').textContent = '❓';
+            
+            document.getElementById('result').style.display = 'block';
         }
 
-        function copyToClipboard() {
-            const link = document.getElementById('m3u8Link').textContent;
-            navigator.clipboard.writeText(link).then(() => {
-                alert('Link copied to clipboard!');
+        function useExample(movieKey) {
+            const movie = movies[movieKey];
+            if (movie) {
+                document.getElementById('movieLink').value = `https://www.cat3movie.club/${movie.slug}/`;
+                displayResult(movie, `https://www.cat3movie.club/${movie.slug}/`);
+            }
+        }
+
+        function copyCommand(type) {
+            let text = '';
+            if (type === 'viewSource') {
+                text = document.getElementById('viewSourceCmd').textContent;
+            } else if (type === 'searchTerm') {
+                text = 'm3u8';
+            } else if (type === 'm3u8') {
+                text = document.getElementById('m3u8Link').textContent;
+            } else if (type === 'logo') {
+                text = document.getElementById('logoUrl').textContent;
+            }
+            
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Copied!');
             });
-        }
-
-        function downloadM3U() {
-            const title = document.getElementById('movieTitle').textContent;
-            const link = document.getElementById('m3u8Link').textContent;
-            
-            const content = `#EXTM3U\n#EXTINF:-1,${title}\n${link}`;
-            const blob = new Blob([content], { type: 'text/plain' });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = `${title.toLowerCase().replace(/\s+/g, '_')}.m3u`;
-            a.click();
-        }
-
-        function useExample(url) {
-            document.getElementById('urlInput').value = url;
-            extractM3U8();
         }
     </script>
 </body>
