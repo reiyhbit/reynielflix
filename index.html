@@ -17,7 +17,6 @@
             border-radius: 15px;
             overflow: hidden;
             box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-            border: 1px solid #4a4a6a;
         }
         .browser-header {
             background: #16213e;
@@ -63,6 +62,27 @@
         .nav-btn:hover {
             background: #ff6b8b;
         }
+        .proxy-selector {
+            display: flex;
+            gap: 10px;
+            padding: 10px 20px;
+            background: #0f3460;
+            border-top: 1px solid #4a4a6a;
+        }
+        .proxy-btn {
+            background: #1a1a2e;
+            color: #94a3b8;
+            border: 1px solid #4a4a6a;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .proxy-btn.active {
+            background: #e94560;
+            color: white;
+            border-color: #e94560;
+        }
         .browser-content {
             display: flex;
             height: 600px;
@@ -86,7 +106,7 @@
             padding: 15px;
             overflow: auto;
             font-family: monospace;
-            font-size: 13px;
+            font-size: 12px;
             color: #0ff;
             background: #0a0a1a;
             white-space: pre-wrap;
@@ -113,7 +133,7 @@
         .m3u8-link {
             color: #4ade80;
             font-family: monospace;
-            font-size: 13px;
+            font-size: 12px;
             word-break: break-all;
             margin: 10px 0;
             padding: 10px;
@@ -134,15 +154,6 @@
             border-radius: 8px;
             border: 2px solid #fbbf24;
         }
-        .logo-url {
-            color: #fbbf24;
-            font-family: monospace;
-            font-size: 12px;
-            word-break: break-all;
-            background: #0a0a1a;
-            padding: 10px;
-            border-radius: 5px;
-        }
         .btn-group {
             display: flex;
             gap: 10px;
@@ -154,7 +165,7 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
         }
         .btn-primary {
@@ -176,11 +187,13 @@
             font-size: 13px;
             border-top: 1px solid #4a4a6a;
         }
-        .highlight {
-            background: #e94560;
-            color: white;
-            padding: 2px 5px;
-            border-radius: 3px;
+        .error-message {
+            color: #ef4444;
+            background: #450a0a;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border-left: 4px solid #ef4444;
         }
     </style>
 </head>
@@ -190,49 +203,64 @@
             <div class="browser-title">🎬 Cat3Movie M3U8 Browser</div>
             <div class="url-bar">
                 <span style="color:#94a3b8;">view-source:</span>
-                <input type="text" class="url-input" id="urlInput" placeholder="https://www.cat3movie.club/movie-name/" value="https://www.cat3movie.club/kinsenas-katapusan-2022/">
+                <input type="text" class="url-input" id="urlInput" value="https://www.cat3movie.club/sweet-release-vivamax/">
                 <button class="nav-btn" onclick="loadPage()">GO</button>
             </div>
         </div>
+
+        <div class="proxy-selector" id="proxySelector">
+            <button class="proxy-btn active" onclick="setProxy('corsproxy')">🔄 CORS Proxy</button>
+            <button class="proxy-btn" onclick="setProxy('allorigins')">🌐 AllOrigins</button>
+            <button class="proxy-btn" onclick="setProxy('thingproxy')">🔧 ThingProxy</button>
+            <button class="proxy-btn" onclick="setProxy('cors anywhere')">📡 CORS Anywhere</button>
+        </div>
         
         <div class="browser-content">
-            <!-- Left Panel: View Source -->
             <div class="source-panel">
                 <div class="panel-header">
-                    📄 VIEW SOURCE | <span style="color:#4ade80;">Ctrl+F para hanapin ang "m3u8"</span>
+                    📄 VIEW SOURCE | <span style="color:#4ade80;">Ctrl+F: "m3u8" o "sooplive"</span>
                 </div>
                 <div class="source-content" id="sourceContent">
-                    Loading...
+                    I-paste ang URL at i-click GO
                 </div>
             </div>
             
-            <!-- Right Panel: Auto Extract -->
             <div class="extract-panel">
                 <div class="panel-header">
                     🔍 AUTO-EXTRACTED | <span style="color:#fbbf24;">M3U8 + LOGO</span>
                 </div>
                 <div class="extract-content" id="extractContent">
                     <div style="color:#94a3b8; text-align:center; margin-top:50px;">
-                        ⚡ Maghintay habang naglo-load ang page...
+                        ⚡ Maghintay habang naglo-load...
                     </div>
                 </div>
             </div>
         </div>
         
         <div class="status-bar" id="statusBar">
-            ✅ Ready | I-paste ang movie link at i-click GO
+            ✅ Ready | Piliin ang proxy at i-click GO
         </div>
     </div>
 
     <script>
-        // Database ng mga kilalang patterns
-        const patterns = {
-            m3u8: /(https?:[^"'\s]+\.m3u8[^"'\s]*)/g,
-            logo: /(https?:[^"'\s]+\.(jpg|jpeg|png|webp)[^"'\s]*)/g,
-            tmdbLogo: /https:\/\/image\.tmdb\.org\/[^"'\s]+/g,
-            sooplive: /(https?:[^"'\s]*sooplive[^"'\s]*\.m3u8[^"'\s]*)/g,
-            bigo: /(https?:[^"'\s]*bigo[^"'\s]*\.mp4[^"'\s]*)/g
+        let currentProxy = 'corsproxy';
+        
+        // List of working proxies
+        const proxies = {
+            'corsproxy': 'https://corsproxy.io/?',
+            'allorigins': 'https://api.allorigins.win/raw?url=',
+            'thingproxy': 'https://thingproxy.freeboard.io/fetch/',
+            'cors anywhere': 'https://cors-anywhere.herokuapp.com/'
         };
+
+        function setProxy(proxy) {
+            currentProxy = proxy;
+            document.querySelectorAll('.proxy-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            document.getElementById('statusBar').innerHTML = `✅ Proxy set to: ${proxy}`;
+        }
 
         async function loadPage() {
             let url = document.getElementById('urlInput').value.trim();
@@ -245,28 +273,90 @@
             // Update status
             document.getElementById('statusBar').innerHTML = '⏳ Loading page source...';
             document.getElementById('sourceContent').innerHTML = '⏳ Fetching page source...';
-            document.getElementById('extractContent').innerHTML = '<div style="color:#94a3b8; text-align:center; margin-top:50px;">⏳ Extracting M3U8 and logo...</div>';
+            document.getElementById('extractContent').innerHTML = '<div style="color:#94a3b8; text-align:center; margin-top:50px;">⏳ Extracting...</div>';
 
-            try {
-                // Use a CORS proxy to fetch the page
-                let proxy = 'https://api.allorigins.win/raw?url=';
-                let response = await fetch(proxy + encodeURIComponent(url));
-                let html = await response.text();
-                
-                // Display source
-                displaySource(html);
-                
-                // Auto-extract
-                extractAll(html, url);
-                
-                document.getElementById('statusBar').innerHTML = '✅ Page loaded successfully | Found: ' + 
-                    countMatches(html, patterns.m3u8) + ' M3U8 | ' + 
-                    countMatches(html, patterns.logo) + ' images';
+            // Try each proxy until one works
+            let html = null;
+            let error = null;
+            
+            const proxyList = ['corsproxy', 'allorigins', 'thingproxy'];
+            
+            for (let proxy of proxyList) {
+                try {
+                    document.getElementById('statusBar').innerHTML = `⏳ Trying ${proxy}...`;
+                    let proxyUrl = proxies[proxy] + encodeURIComponent(url);
                     
-            } catch (error) {
-                document.getElementById('sourceContent').innerHTML = '❌ Error loading page: ' + error;
-                document.getElementById('extractContent').innerHTML = '<div style="color:#ef4444; text-align:center; margin-top:50px;">❌ Failed to load page</div>';
-                document.getElementById('statusBar').innerHTML = '❌ Error: ' + error.message;
+                    let response = await fetch(proxyUrl, {
+                        headers: {
+                            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        html = await response.text();
+                        document.getElementById('statusBar').innerHTML = `✅ Loaded using ${proxy}`;
+                        break;
+                    }
+                } catch (e) {
+                    error = e;
+                    console.log(`${proxy} failed:`, e);
+                }
+            }
+
+            if (html) {
+                displaySource(html);
+                extractAll(html, url);
+            } else {
+                // Fallback: try direct fetch with no-cors
+                try {
+                    let response = await fetch(url, { mode: 'no-cors' });
+                    document.getElementById('sourceContent').innerHTML = '⚠️ Cannot view source due to CORS. Try these alternatives:';
+                    document.getElementById('sourceContent').innerHTML += '<br><br>1. I-open sa bagong tab: <b>view-source:' + url + '</b>';
+                    document.getElementById('sourceContent').innerHTML += '<br><br>2. I-download ang page at i-upload dito ⬇️';
+                    document.getElementById('sourceContent').innerHTML += '<br><br><input type="file" id="htmlFile" accept=".html,.htm" onchange="loadHTMLFile(event)">';
+                    
+                    document.getElementById('extractContent').innerHTML = `
+                        <div class="error-message">
+                            ❌ Failed to load page automatically<br><br>
+                            <b>Manual Steps:</b><br>
+                            1. I-open sa bagong tab: <b>view-source:${url}</b><br>
+                            2. Ctrl+A, Ctrl+C (copy all)<br>
+                            3. I-paste dito 👇
+                        </div>
+                        <textarea id="manualPaste" style="width:100%; height:200px; background:#0a0a1a; color:#0ff; border:1px solid #4a4a6a; padding:10px; border-radius:5px;" placeholder="I-paste ang HTML source dito..."></textarea>
+                        <button class="btn btn-primary" style="margin-top:10px;" onclick="processManualPaste()">Process HTML</button>
+                    `;
+                    
+                    document.getElementById('statusBar').innerHTML = '❌ Using manual mode';
+                } catch (e) {
+                    showManualMode(url);
+                }
+            }
+        }
+
+        function showManualMode(url) {
+            document.getElementById('sourceContent').innerHTML = `
+                <div style="color:#ef4444;">❌ Cannot auto-fetch page</div><br>
+                <b>Gawin mo ito:</b><br>
+                1. I-right click sa page → View Page Source<br>
+                2. Ctrl+A, Ctrl+C (copy lahat)<br>
+                3. I-paste sa box sa kanan
+            `;
+            
+            document.getElementById('extractContent').innerHTML = `
+                <textarea id="manualSource" style="width:100%; height:300px; background:#0a0a1a; color:#0ff; border:1px solid #4a4a6a; padding:10px; border-radius:5px; font-family:monospace; font-size:12px;" placeholder="I-paste ang HTML source dito..."></textarea>
+                <button class="btn btn-primary" style="margin-top:10px; width:100%;" onclick="processManualSource()">🔍 EXTRACT M3U8 & LOGO</button>
+            `;
+            
+            document.getElementById('statusBar').innerHTML = '📝 Manual mode - I-paste ang source';
+        }
+
+        function processManualSource() {
+            let html = document.getElementById('manualSource').value;
+            if (html) {
+                displaySource(html);
+                extractAll(html, 'manual');
+                document.getElementById('statusBar').innerHTML = '✅ Manual source processed';
             }
         }
 
@@ -275,18 +365,23 @@
             let formatted = html
                 .replace(/</g, '&lt;')
                 .replace(/>/g, '&gt;')
-                .replace(/(https?:[^"'\s]+\.m3u8[^"'\s]*)/g, '<span style="background:#4ade80; color:#000; padding:2px;">$1</span>')
-                .replace(/(https?:[^"'\s]*sooplive[^"'\s]*)/g, '<span style="background:#fbbf24; color:#000; padding:2px;">$1</span>');
+                .replace(/(https?:[^"'\s]+\.m3u8[^"'\s]*)/g, '<span style="background:#4ade80; color:#000; padding:2px; border-radius:3px;">$1</span>')
+                .replace(/(https?:[^"'\s]*sooplive[^"'\s]*)/g, '<span style="background:#fbbf24; color:#000; padding:2px; border-radius:3px;">$1</span>')
+                .replace(/(sources:[^,]+)/g, '<span style="background:#e94560; color:#fff; padding:2px; border-radius:3px;">$1</span>');
             
             document.getElementById('sourceContent').innerHTML = formatted;
         }
 
-        function extractAll(html, pageUrl) {
+        function extractAll(html, source) {
             let extractDiv = document.getElementById('extractContent');
             let output = '';
 
+            // Look for JW Player sources
+            let jwPlayerMatches = html.match(/sources:\s*\[\s*\{[^}]*file:\s*["']([^"']+)["']/g);
+            
             // Extract M3U8 links
-            let m3u8Matches = [...html.matchAll(patterns.m3u8)];
+            let m3u8Pattern = /(https?:[^"'\s]+\.m3u8[^"'\s]*)/g;
+            let m3u8Matches = [...html.matchAll(m3u8Pattern)];
             let uniqueM3u8 = [...new Set(m3u8Matches.map(m => m[0]))];
             
             if (uniqueM3u8.length > 0) {
@@ -294,76 +389,54 @@
                 output += '<div style="color:#4ade80; font-weight:bold; margin-bottom:10px;">🎥 M3U8 FOUND</div>';
                 
                 uniqueM3u8.forEach((link, index) => {
-                    output += `<div class="m3u8-link" id="m3u8_${index}">${link}</div>`;
+                    output += `<div class="m3u8-link">${link}</div>`;
                 });
                 
                 output += '<div class="btn-group">';
-                output += `<button class="btn btn-primary" onclick="copyM3U8('${uniqueM3u8[0]}')">📋 Copy First M3U8</button>`;
+                output += `<button class="btn btn-primary" onclick="copyText('${uniqueM3u8[0]}')">📋 Copy First M3U8</button>`;
                 output += `<button class="btn btn-success" onclick="downloadM3U('${uniqueM3u8[0]}')">⬇️ Download .m3u</button>`;
                 output += '</div>';
                 output += '</div>';
             } else {
                 output += '<div class="m3u8-found" style="border-left-color:#ef4444;">';
                 output += '<div style="color:#ef4444; font-weight:bold;">❌ NO M3U8 FOUND</div>';
-                output += '<div style="color:#94a3b8; margin-top:10px;">Try searching manually sa source (Ctrl+F) for: m3u8, manifest, playlist</div>';
+                output += '<div style="color:#94a3b8; margin-top:10px;">Try searching: m3u8, manifest, playlist, sources, file:</div>';
                 output += '</div>';
             }
 
-            // Extract Logo
-            let logoMatches = [...html.matchAll(patterns.logo)];
-            let uniqueLogos = [...new Set(logoMatches.map(m => m[0]))];
+            // Extract Logo (TMDB)
+            let tmdbPattern = /https:\/\/image\.tmdb\.org\/[^"'\s]+/g;
+            let tmdbMatches = [...html.matchAll(tmdbPattern)];
+            let uniqueTmdb = [...new Set(tmdbMatches.map(m => m[0]))];
             
-            // Filter for TMDB logos (mas maganda)
-            let tmdbLogos = uniqueLogos.filter(logo => logo.includes('tmdb') || logo.includes('themoviedb'));
-            
-            if (tmdbLogos.length > 0) {
+            if (uniqueTmdb.length > 0) {
                 output += '<div class="logo-found">';
-                output += '<div style="color:#fbbf24; font-weight:bold; margin-bottom:10px;">🖼️ LOGO FOUND</div>';
-                output += `<img src="${tmdbLogos[0]}" class="logo-preview" onerror="this.style.display='none'">`;
-                output += `<div class="logo-url">${tmdbLogos[0]}</div>`;
-                output += '<button class="btn btn-warning" style="margin-top:10px;" onclick="copyLogo(\'' + tmdbLogos[0] + '\')">📋 Copy Logo URL</button>';
-                output += '</div>';
-            } else if (uniqueLogos.length > 0) {
-                output += '<div class="logo-found">';
-                output += '<div style="color:#fbbf24; font-weight:bold; margin-bottom:10px;">🖼️ LOGO FOUND</div>';
-                output += `<img src="${uniqueLogos[0]}" class="logo-preview" onerror="this.style.display='none'">`;
-                output += `<div class="logo-url">${uniqueLogos[0]}</div>`;
-                output += '<button class="btn btn-warning" style="margin-top:10px;" onclick="copyLogo(\'' + uniqueLogos[0] + '\')">📋 Copy Logo URL</button>';
+                output += '<div style="color:#fbbf24; font-weight:bold; margin-bottom:10px;">🖼️ TMDB LOGO FOUND</div>';
+                output += `<img src="${uniqueTmdb[0]}" class="logo-preview" onerror="this.style.display='none'">`;
+                output += `<div class="m3u8-link" style="color:#fbbf24;">${uniqueTmdb[0]}</div>`;
+                output += `<button class="btn btn-warning" onclick="copyText('${uniqueTmdb[0]}')">📋 Copy Logo URL</button>`;
                 output += '</div>';
             }
 
-            // Add movie info
-            output += '<div style="background:#16213e; padding:15px; border-radius:5px; margin-top:15px;">';
-            output += '<div style="color:#94a3b8; margin-bottom:5px;">📌 Movie Info</div>';
-            
             // Try to get title
             let titleMatch = html.match(/<title>(.+?)<\/title>/);
             if (titleMatch) {
-                output += `<div style="color:#fff;">${titleMatch[1]}</div>`;
+                output += '<div style="background:#16213e; padding:15px; border-radius:5px; margin-top:15px;">';
+                output += '<div style="color:#94a3b8; margin-bottom:5px;">📌 Movie Title</div>';
+                output += `<div style="color:#fff; font-weight:bold;">${titleMatch[1]}</div>`;
+                output += '</div>';
             }
-            
-            output += '</div>';
 
             extractDiv.innerHTML = output;
         }
 
-        function countMatches(html, pattern) {
-            let matches = html.match(pattern);
-            return matches ? matches.length : 0;
-        }
-
-        function copyM3U8(link) {
-            navigator.clipboard.writeText(link);
-            document.getElementById('statusBar').innerHTML = '✅ M3U8 link copied to clipboard!';
-        }
-
-        function copyLogo(logo) {
-            navigator.clipboard.writeText(logo);
-            document.getElementById('statusBar').innerHTML = '✅ Logo URL copied to clipboard!';
+        function copyText(text) {
+            navigator.clipboard.writeText(text);
+            document.getElementById('statusBar').innerHTML = '✅ Copied to clipboard!';
         }
 
         function downloadM3U(m3u8Link) {
-            let title = document.querySelector('.logo-found')?.previousElementSibling?.textContent || 'movie';
+            let title = document.querySelector('.m3u8-found + .logo-found') ? 'movie' : 'cat3movie';
             let m3uContent = `#EXTM3U\n#EXTINF:-1,${title}\n${m3u8Link}`;
             
             let blob = new Blob([m3uContent], {type: 'text/plain'});
@@ -377,7 +450,7 @@
 
         // Load default page
         window.onload = function() {
-            loadPage();
+            // loadPage();
         };
     </script>
 </body>
