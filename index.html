@@ -34,7 +34,6 @@
 
         .header.scrolled {
             background-color: #141414;
-            background: linear-gradient(to bottom, #141414 0%, #141414 100%);
         }
 
         .logo {
@@ -89,6 +88,11 @@
             width: 32px;
             height: 32px;
             border-radius: 4px;
+            background-color: #e50914;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
             cursor: pointer;
         }
 
@@ -114,6 +118,7 @@
             width: 100%;
             height: 100%;
             outline: none;
+            background-color: #000;
         }
 
         /* Custom video controls (Netflix style) */
@@ -129,7 +134,8 @@
             pointer-events: none;
         }
 
-        .hero:hover .custom-controls {
+        .hero:hover .custom-controls,
+        .custom-controls.show {
             opacity: 1;
             pointer-events: all;
         }
@@ -261,49 +267,46 @@
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             cursor: pointer;
             position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            text-align: center;
+            padding: 10px;
+            font-size: 12px;
+            border: 1px solid #333;
         }
 
         .card:hover {
             transform: scale(1.4);
             z-index: 10;
             box-shadow: 0 0 20px rgba(0,0,0,0.9);
+            border-color: #e50914;
         }
 
-        .card img {
+        .card-content {
             width: 100%;
             height: 100%;
-            object-fit: cover;
-        }
-
-        .card-overlay {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
-            padding: 20px 10px 10px 10px;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .card:hover .card-overlay {
-            opacity: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
         }
 
         .card-title {
             font-size: 12px;
             font-weight: 600;
-            margin-bottom: 5px;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            padding: 0 5px;
         }
 
         .play-icon {
-            color: #fff;
-            font-size: 24px;
-            text-align: center;
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            margin-bottom: 5px;
+            color: #e50914;
+            font-size: 30px;
         }
 
         /* Loading indicator */
@@ -314,6 +317,7 @@
             transform: translate(-50%, -50%);
             text-align: center;
             display: none;
+            z-index: 10;
         }
 
         .spinner {
@@ -342,6 +346,15 @@
             border-radius: 8px;
             text-align: center;
             display: none;
+            z-index: 10;
+            max-width: 80%;
+        }
+
+        .error-details {
+            font-size: 12px;
+            margin-top: 10px;
+            color: #ffcccc;
+            word-break: break-word;
         }
 
         /* Modal for playlist */
@@ -417,6 +430,13 @@
             word-break: break-all;
         }
 
+        /* No streams message */
+        .no-streams {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
         /* Responsive design */
         @media (max-width: 768px) {
             .header {
@@ -439,6 +459,10 @@
             .card {
                 width: 150px;
                 height: 84px;
+            }
+            
+            .card:hover {
+                transform: scale(1.2);
             }
         }
     </style>
@@ -463,14 +487,14 @@
         <div class="user-profile">
             <i class="fas fa-search"></i>
             <i class="fas fa-bell"></i>
-            <i class="fas fa-user-circle avatar"></i>
+            <div class="avatar">U</div>
         </div>
     </div>
 
     <!-- Hero section with video player -->
     <div class="hero">
         <div class="video-container">
-            <video id="video-player" poster="https://via.placeholder.com/1920x1080/1a1a1a/666666?text=Loading+Stream..."></video>
+            <video id="video-player" poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1920' height='1080' viewBox='0 0 1920 1080'%3E%3Crect width='1920' height='1080' fill='%23141414'/%3E%3Ctext x='960' y='540' font-family='Arial' font-size='48' fill='%23e50914' text-anchor='middle' dy='.3em'%3ENetflix%3C/text%3E%3Ctext x='960' y='600' font-family='Arial' font-size='24' fill='%23666' text-anchor='middle' dy='.3em'%3ESelect a stream to play%3C/text%3E%3C/svg%3E"></video>
             
             <!-- Loading indicator -->
             <div class="loading" id="loading">
@@ -482,6 +506,7 @@
             <div class="error-message" id="error-message">
                 <i class="fas fa-exclamation-triangle" style="font-size: 48px; margin-bottom: 10px;"></i>
                 <p id="error-text">Failed to load stream</p>
+                <p class="error-details" id="error-details"></p>
                 <button onclick="loadPlaylist()" style="margin-top: 15px; padding: 8px 20px; background-color: #fff; color: #000; border: none; border-radius: 4px; cursor: pointer;">Retry</button>
             </div>
 
@@ -509,18 +534,8 @@
     <!-- Content rows (Netflix style) -->
     <div class="content">
         <div class="category-row">
-            <h2 class="category-title">Trending Now</h2>
-            <div class="row-items" id="trending-row"></div>
-        </div>
-
-        <div class="category-row">
-            <h2 class="category-title">Continue Watching</h2>
-            <div class="row-items" id="continue-row"></div>
-        </div>
-
-        <div class="category-row">
-            <h2 class="category-title">Popular on Netflix</h2>
-            <div class="row-items" id="popular-row"></div>
+            <h2 class="category-title">Available Streams</h2>
+            <div class="row-items" id="streams-row"></div>
         </div>
     </div>
 
@@ -528,7 +543,7 @@
     <div class="modal" id="playlist-modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Available Streams</h2>
+                <h2>All Streams</h2>
                 <button class="close-btn" onclick="closeModal()"><i class="fas fa-times"></i></button>
             </div>
             <div class="playlist-items" id="playlist-items">
@@ -558,37 +573,30 @@
                 return;
             }
 
-            // Create player instance
-            player = new shaka.Player(videoElement);
+            try {
+                // Create player instance
+                player = new shaka.Player();
+                
+                // Attach to video element
+                await player.attach(videoElement);
 
-            // Attach error handler
-            player.addEventListener('error', onPlayerError);
+                // Attach error handler
+                player.addEventListener('error', onPlayerError);
 
-            // Configure player
-            player.configure({
-                streaming: {
-                    bufferingGoal: 30,
-                    rebufferingGoal: 15,
-                    bufferBehind: 30,
-                    ignoreTextStreamFailures: true,
-                    alwaysStreamText: false,
-                    startAtSegmentBoundary: false,
-                    fastSwitching: true,
-                    accurateManifestUpdate: true
-                },
-                manifest: {
-                    retryParameters: {
-                        maxAttempts: 5,
-                        baseDelay: 1000,
-                        backoffFactor: 2,
-                        fuzzFactor: 0.5,
-                        timeout: 30000
+                // Configure player with basic settings only
+                player.configure({
+                    streaming: {
+                        bufferingGoal: 30,
+                        rebufferingGoal: 15,
+                        bufferBehind: 30
                     }
-                }
-            });
+                });
 
-            // Load the playlist
-            loadPlaylist();
+                console.log('Shaka Player initialized successfully');
+            } catch (error) {
+                console.error('Error initializing player:', error);
+                showError('Failed to initialize player: ' + error.message);
+            }
         }
 
         // Load M3U playlist
@@ -597,19 +605,29 @@
             hideError();
             
             try {
-                const response = await fetch('https://reiyhbit.github.io/iptv/viva.m3u');
+                console.log('Fetching playlist from: https://reiyhbit.github.io/vv/');
+                const response = await fetch('https://reiyhbit.github.io/vv/');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
                 const m3uText = await response.text();
+                console.log('Playlist fetched, length:', m3uText.length);
                 
                 // Parse M3U playlist
                 playlistData = parseM3U(m3uText);
+                console.log('Parsed playlist items:', playlistData.length);
                 
                 if (playlistData.length > 0) {
+                    // Populate content rows first
+                    populateContentRows();
+                    
                     // Load the first stream
                     await loadStream(playlistData[0].url);
-                    // Populate content rows
-                    populateContentRows();
                 } else {
                     showError('No streams found in playlist');
+                    document.getElementById('streams-row').innerHTML = '<div class="no-streams">No streams available</div>';
                 }
             } catch (error) {
                 console.error('Error loading playlist:', error);
@@ -634,7 +652,7 @@
                     if (infoMatch) {
                         currentItem = {
                             duration: infoMatch[1].trim(),
-                            title: infoMatch[2].trim(),
+                            title: infoMatch[2].trim() || 'Unknown Stream',
                             url: ''
                         };
                     }
@@ -644,8 +662,29 @@
                         currentItem.url = line;
                         items.push({...currentItem});
                         currentItem = {};
+                    } else {
+                        // No EXTINF tag, just add the URL with a generic title
+                        items.push({
+                            title: 'Stream ' + (items.length + 1),
+                            url: line,
+                            duration: '0'
+                        });
                     }
                 }
+            }
+
+            // If still no items, try to treat every non-empty line as URL
+            if (items.length === 0) {
+                lines.forEach(line => {
+                    line = line.trim();
+                    if (line && !line.startsWith('#')) {
+                        items.push({
+                            title: 'Stream ' + (items.length + 1),
+                            url: line,
+                            duration: '0'
+                        });
+                    }
+                });
             }
 
             return items;
@@ -653,12 +692,22 @@
 
         // Load a stream
         async function loadStream(url) {
-            if (!player) return;
+            if (!player) {
+                await initPlayer();
+            }
             
             showLoading();
             hideError();
             
             try {
+                // Make sure URL is valid
+                if (!url || url === '') {
+                    throw new Error('Invalid stream URL');
+                }
+
+                console.log('Loading stream:', url);
+                
+                // Load the stream
                 await player.load(url);
                 currentStreamUrl = url;
                 
@@ -666,13 +715,19 @@
                 updateVideoInfo();
                 
                 // Start playing
-                videoElement.play();
-                isPlaying = true;
-                updatePlayPauseIcon();
+                try {
+                    await videoElement.play();
+                    isPlaying = true;
+                    updatePlayPauseIcon();
+                } catch (playError) {
+                    console.log('Autoplay prevented:', playError);
+                    isPlaying = false;
+                    updatePlayPauseIcon();
+                }
                 
             } catch (error) {
                 console.error('Error loading stream:', error);
-                showError('Failed to load stream: ' + error.message);
+                showError('Failed to load stream: ' + error.message, error.toString());
             } finally {
                 hideLoading();
             }
@@ -681,39 +736,34 @@
         // Player error handler
         function onPlayerError(event) {
             console.error('Player error:', event.detail);
-            showError('Stream error: ' + event.detail.message);
+            const error = event.detail;
+            showError('Stream error: ' + (error.message || 'Unknown error'), error.toString());
         }
 
         // Update video information
         function updateVideoInfo() {
-            // Update video title and other info in UI
-            const videoTitle = playlistData.find(item => item.url === currentStreamUrl)?.title || 'Unknown Stream';
-            document.querySelector('.hero').setAttribute('data-title', videoTitle);
+            const currentItem = playlistData.find(item => item.url === currentStreamUrl);
+            if (currentItem) {
+                document.querySelector('.hero').setAttribute('data-title', currentItem.title);
+            }
         }
 
         // Populate content rows with playlist items
         function populateContentRows() {
-            const trendingRow = document.getElementById('trending-row');
-            const continueRow = document.getElementById('continue-row');
-            const popularRow = document.getElementById('popular-row');
+            const streamsRow = document.getElementById('streams-row');
 
             // Clear existing content
-            trendingRow.innerHTML = '';
-            continueRow.innerHTML = '';
-            popularRow.innerHTML = '';
+            streamsRow.innerHTML = '';
+
+            if (playlistData.length === 0) {
+                streamsRow.innerHTML = '<div class="no-streams">No streams available</div>';
+                return;
+            }
 
             // Create cards for each playlist item
             playlistData.forEach((item, index) => {
                 const card = createCard(item, index);
-                
-                // Distribute items across rows
-                if (index < 5) {
-                    trendingRow.appendChild(card.cloneNode(true));
-                } else if (index < 10) {
-                    continueRow.appendChild(card.cloneNode(true));
-                } else {
-                    popularRow.appendChild(card.cloneNode(true));
-                }
+                streamsRow.appendChild(card);
             });
         }
 
@@ -723,11 +773,15 @@
             card.className = 'card';
             card.onclick = () => loadStream(item.url);
             
+            // Get title or create one
+            const title = item.title || 'Unknown Stream';
+            const displayTitle = title.length > 25 ? title.substring(0, 22) + '...' : title;
+            
             card.innerHTML = `
-                <img src="https://via.placeholder.com/200x112/333333/666666?text=${encodeURIComponent(item.title.substring(0, 20))}" alt="${item.title}">
-                <div class="card-overlay">
-                    <div class="play-icon"><i class="fas fa-play"></i></div>
-                    <div class="card-title">${item.title}</div>
+                <div class="card-content">
+                    <i class="fas fa-play-circle play-icon"></i>
+                    <div class="card-title">${displayTitle}</div>
+                    <div style="font-size: 10px; color: #e50914;">Click to play</div>
                 </div>
             `;
             
@@ -741,21 +795,28 @@
             
             playlistItems.innerHTML = '';
             
-            playlistData.forEach(item => {
-                const div = document.createElement('div');
-                div.className = 'playlist-item';
-                div.onclick = () => {
-                    loadStream(item.url);
-                    closeModal();
-                };
-                
-                div.innerHTML = `
-                    <div class="item-title">${item.title}</div>
-                    <div class="item-url">${item.url.substring(0, 50)}...</div>
-                `;
-                
-                playlistItems.appendChild(div);
-            });
+            if (playlistData.length === 0) {
+                playlistItems.innerHTML = '<div class="no-streams">No streams available</div>';
+            } else {
+                playlistData.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'playlist-item';
+                    div.onclick = () => {
+                        loadStream(item.url);
+                        closeModal();
+                    };
+                    
+                    const title = item.title || 'Unknown Stream';
+                    const url = item.url || '';
+                    
+                    div.innerHTML = `
+                        <div class="item-title">${title}</div>
+                        <div class="item-url">${url.substring(0, 50)}${url.length > 50 ? '...' : ''}</div>
+                    `;
+                    
+                    playlistItems.appendChild(div);
+                });
+            }
             
             modal.classList.add('active');
         }
@@ -774,9 +835,10 @@
             document.getElementById('loading').style.display = 'none';
         }
 
-        function showError(message) {
+        function showError(message, details = '') {
             const errorDiv = document.getElementById('error-message');
             document.getElementById('error-text').textContent = message;
+            document.getElementById('error-details').textContent = details;
             errorDiv.style.display = 'block';
         }
 
@@ -857,6 +919,9 @@
         }
 
         function formatTime(seconds) {
+            if (isNaN(seconds) || !isFinite(seconds)) {
+                return '0:00';
+            }
             const h = Math.floor(seconds / 3600);
             const m = Math.floor((seconds % 3600) / 60);
             const s = Math.floor(seconds % 60);
@@ -881,18 +946,37 @@
                 }
             });
 
+            // Get video element reference
+            videoElement = document.getElementById('video-player');
+
             // Video event listeners
             videoElement.addEventListener('timeupdate', () => {
-                const progress = (videoElement.currentTime / videoElement.duration) * 100;
-                document.getElementById('progress-fill').style.width = progress + '%';
-                
-                document.getElementById('time-display').textContent = 
-                    `${formatTime(videoElement.currentTime)} / ${formatTime(videoElement.duration)}`;
+                if (videoElement.duration) {
+                    const progress = (videoElement.currentTime / videoElement.duration) * 100;
+                    document.getElementById('progress-fill').style.width = progress + '%';
+                    
+                    document.getElementById('time-display').textContent = 
+                        `${formatTime(videoElement.currentTime)} / ${formatTime(videoElement.duration)}`;
+                }
             });
 
             videoElement.addEventListener('ended', () => {
                 isPlaying = false;
                 updatePlayPauseIcon();
+            });
+
+            // Show controls on mouse move
+            videoElement.addEventListener('mousemove', () => {
+                const controls = document.getElementById('custom-controls');
+                controls.classList.add('show');
+                
+                // Hide controls after 3 seconds of inactivity
+                clearTimeout(window.controlsTimeout);
+                window.controlsTimeout = setTimeout(() => {
+                    if (!videoElement.paused) {
+                        controls.classList.remove('show');
+                    }
+                }, 3000);
             });
 
             // Control buttons
@@ -904,7 +988,9 @@
             document.getElementById('progress-bar').addEventListener('click', (e) => {
                 const rect = e.currentTarget.getBoundingClientRect();
                 const pos = (e.clientX - rect.left) / rect.width;
-                videoElement.currentTime = pos * videoElement.duration;
+                if (videoElement.duration) {
+                    videoElement.currentTime = pos * videoElement.duration;
+                }
             });
 
             // Volume slider
@@ -919,12 +1005,19 @@
 
             // Keyboard shortcuts
             document.addEventListener('keydown', (e) => {
+                // Don't trigger if user is typing in an input
+                if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+                    return;
+                }
+
                 if (e.code === 'Space') {
                     e.preventDefault();
                     togglePlayPause();
                 } else if (e.code === 'KeyF') {
+                    e.preventDefault();
                     toggleFullscreen();
                 } else if (e.code === 'KeyM') {
+                    e.preventDefault();
                     toggleMute();
                 }
             });
