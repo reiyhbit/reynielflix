@@ -1,416 +1,384 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cat3Movie Auto M3U Generator</title>
+    <title>Cat3Movie M3U8 Browser</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
         }
-        .container {
-            max-width: 800px;
-            margin: 30px auto;
-            background: rgba(255,255,255,0.05);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 30px;
-            border: 1px solid rgba(255,255,255,0.1);
+        .browser-container {
+            max-width: 1200px;
+            margin: 20px auto;
+            background: #1a1a2e;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            border: 1px solid #4a4a6a;
         }
-        h1 {
+        .browser-header {
+            background: #16213e;
+            padding: 15px 20px;
+            border-bottom: 2px solid #e94560;
+        }
+        .browser-title {
             color: #fff;
-            font-size: 28px;
+            font-size: 20px;
+            font-weight: bold;
             margin-bottom: 10px;
         }
-        .subtitle {
-            color: #94a3b8;
-            margin-bottom: 30px;
-        }
-        .input-group {
+        .url-bar {
             display: flex;
             gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
+            align-items: center;
+            background: #0f3460;
+            border-radius: 8px;
+            padding: 5px;
         }
-        #movieLink {
+        .url-input {
             flex: 1;
-            padding: 15px 20px;
-            border: 2px solid #334155;
-            border-radius: 12px;
-            background: #1e293b;
+            padding: 12px 15px;
+            background: #1a1a2e;
+            border: 1px solid #4a4a6a;
+            border-radius: 5px;
             color: #fff;
-            font-size: 16px;
-            min-width: 250px;
+            font-size: 15px;
         }
-        #movieLink:focus {
+        .url-input:focus {
             outline: none;
-            border-color: #3b82f6;
+            border-color: #e94560;
         }
-        button {
-            padding: 15px 30px;
-            background: #3b82f6;
+        .nav-btn {
+            background: #e94560;
             color: white;
             border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
+            padding: 10px 20px;
+            border-radius: 5px;
             cursor: pointer;
-            transition: 0.3s;
+            font-weight: bold;
         }
-        button:hover {
-            background: #2563eb;
-            transform: translateY(-2px);
+        .nav-btn:hover {
+            background: #ff6b8b;
         }
-        .result-box {
-            background: #1e293b;
-            border-radius: 16px;
-            padding: 25px;
-            margin-top: 30px;
-            display: none;
-            border: 1px solid #334155;
-        }
-        .result-box.show {
-            display: block;
-            animation: slideIn 0.3s;
-        }
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .step {
-            background: #0f172a;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 15px;
-            border-left: 4px solid #3b82f6;
-        }
-        .step-title {
-            color: #94a3b8;
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 10px;
-        }
-        .command-box {
-            background: #000;
-            color: #4ade80;
-            padding: 15px;
-            border-radius: 8px;
-            font-family: monospace;
-            font-size: 14px;
-            word-break: break-all;
-            border: 1px solid #334155;
-            margin: 10px 0;
-        }
-        .logo-area {
+        .browser-content {
             display: flex;
-            align-items: center;
-            gap: 20px;
-            background: #0f172a;
-            padding: 20px;
-            border-radius: 12px;
-            margin: 15px 0;
-            flex-wrap: wrap;
+            height: 600px;
         }
-        .logo-preview {
-            width: 80px;
-            height: 80px;
-            border-radius: 8px;
-            background: #1e293b;
-            border: 2px solid #3b82f6;
-            overflow: hidden;
+        .source-panel {
+            width: 50%;
+            background: #0f0f1f;
+            border-right: 2px solid #4a4a6a;
             display: flex;
-            align-items: center;
-            justify-content: center;
+            flex-direction: column;
         }
-        .logo-preview img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+        .panel-header {
+            background: #16213e;
+            padding: 10px 15px;
+            color: #e94560;
+            font-weight: bold;
+            border-bottom: 1px solid #4a4a6a;
         }
-        .m3u-output {
-            background: #0f172a;
-            border-radius: 12px;
-            padding: 20px;
-            margin-top: 20px;
-        }
-        .m3u-header {
-            color: #3b82f6;
-            font-family: monospace;
-            margin-bottom: 10px;
-        }
-        .m3u-content {
-            background: #000;
-            color: #ffd700;
+        .source-content {
+            flex: 1;
             padding: 15px;
-            border-radius: 8px;
+            overflow: auto;
             font-family: monospace;
             font-size: 13px;
-            word-break: break-all;
-            max-height: 150px;
+            color: #0ff;
+            background: #0a0a1a;
+            white-space: pre-wrap;
+            line-height: 1.5;
+        }
+        .extract-panel {
+            width: 50%;
+            background: #0f0f1f;
+            display: flex;
+            flex-direction: column;
+        }
+        .extract-content {
+            flex: 1;
+            padding: 15px;
             overflow: auto;
         }
-        .action-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-            flex-wrap: wrap;
+        .m3u8-found {
+            background: #16213e;
+            border-left: 4px solid #4ade80;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
         }
-        .action-btn {
-            padding: 12px 25px;
-            border: none;
+        .m3u8-link {
+            color: #4ade80;
+            font-family: monospace;
+            font-size: 13px;
+            word-break: break-all;
+            margin: 10px 0;
+            padding: 10px;
+            background: #0a0a1a;
+            border-radius: 5px;
+        }
+        .logo-found {
+            background: #16213e;
+            border-left: 4px solid #fbbf24;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+        .logo-preview {
+            max-width: 150px;
+            max-height: 200px;
+            margin: 10px 0;
             border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.3s;
-            background: #334155;
-            color: white;
+            border: 2px solid #fbbf24;
         }
-        .action-btn.primary {
-            background: #3b82f6;
+        .logo-url {
+            color: #fbbf24;
+            font-family: monospace;
+            font-size: 12px;
+            word-break: break-all;
+            background: #0a0a1a;
+            padding: 10px;
+            border-radius: 5px;
         }
-        .action-btn.success {
-            background: #10b981;
-        }
-        .action-btn:hover {
-            filter: brightness(1.1);
-            transform: translateY(-2px);
-        }
-        .quick-links {
+        .btn-group {
             display: flex;
             gap: 10px;
-            margin: 20px 0;
+            margin-top: 15px;
             flex-wrap: wrap;
         }
-        .quick-link {
-            background: #1e293b;
-            color: #94a3b8;
+        .btn {
             padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 13px;
+            border: none;
+            border-radius: 5px;
             cursor: pointer;
-            border: 1px solid #334155;
+            font-size: 13px;
+            font-weight: 600;
         }
-        .quick-link:hover {
+        .btn-primary {
             background: #3b82f6;
             color: white;
         }
-        .footer {
-            text-align: center;
-            margin-top: 30px;
-            color: #64748b;
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+        }
+        .status-bar {
+            background: #16213e;
+            padding: 8px 15px;
+            color: #94a3b8;
             font-size: 13px;
+            border-top: 1px solid #4a4a6a;
+        }
+        .highlight {
+            background: #e94560;
+            color: white;
+            padding: 2px 5px;
+            border-radius: 3px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🎬 Cat3Movie Auto M3U Generator</h1>
-        <p class="subtitle">I-paste ang movie link at automatic ko nang gagawin ang lahat!</p>
-
-        <div class="input-group">
-            <input type="text" id="movieLink" placeholder="https://www.cat3movie.club/claim-me/">
-            <button onclick="processMovie()">Generate M3U</button>
-        </div>
-
-        <div class="quick-links">
-            <span class="quick-link" onclick="useExample('https://www.cat3movie.club/kinsenas-katapusan-2022/')">Kinsenas</span>
-            <span class="quick-link" onclick="useExample('https://www.cat3movie.club/sagaran-mov18plus-full-vivamax-adult-18-movie-online/')">Sagaran</span>
-            <span class="quick-link" onclick="useExample('https://www.cat3movie.club/claim-me/')">Claim Me</span>
-            <span class="quick-link" onclick="useExample('https://www.cat3movie.club/stepmom/')">Stepmom</span>
-        </div>
-
-        <div class="result-box" id="resultBox">
-            <!-- Step 1: View Source -->
-            <div class="step">
-                <div class="step-title">📋 STEP 1 - View Page Source</div>
-                <div class="command-box" id="viewSourceCmd">view-source:https://...</div>
-                <button class="action-btn" onclick="copyToClipboard('viewSource')">Copy Command</button>
+    <div class="browser-container">
+        <div class="browser-header">
+            <div class="browser-title">🎬 Cat3Movie M3U8 Browser</div>
+            <div class="url-bar">
+                <span style="color:#94a3b8;">view-source:</span>
+                <input type="text" class="url-input" id="urlInput" placeholder="https://www.cat3movie.club/movie-name/" value="https://www.cat3movie.club/kinsenas-katapusan-2022/">
+                <button class="nav-btn" onclick="loadPage()">GO</button>
             </div>
-
-            <!-- Logo -->
-            <div class="logo-area">
-                <div class="logo-preview" id="logoPreview">
-                    <img id="movieLogo" src="" alt="logo" style="display: none;">
-                    <span id="logoPlaceholder" style="color:#64748b;">🎬</span>
+        </div>
+        
+        <div class="browser-content">
+            <!-- Left Panel: View Source -->
+            <div class="source-panel">
+                <div class="panel-header">
+                    📄 VIEW SOURCE | <span style="color:#4ade80;">Ctrl+F para hanapin ang "m3u8"</span>
                 </div>
-                <div style="flex:1;">
-                    <div style="color:#fff; font-weight:bold; margin-bottom:5px;" id="movieTitle">Movie Title</div>
-                    <div class="command-box" id="logoUrl" style="margin:0; font-size:12px;">Logo URL</div>
+                <div class="source-content" id="sourceContent">
+                    Loading...
                 </div>
             </div>
-
-            <!-- M3U8 Link -->
-            <div class="step">
-                <div class="step-title">🎥 STEP 2 - M3U8 Video Link</div>
-                <div class="command-box" id="m3u8Link">https://...manifest.m3u8?rp=o00</div>
-                <button class="action-btn" onclick="copyToClipboard('m3u8')">Copy Link</button>
-            </div>
-
-            <!-- Generated M3U -->
-            <div class="m3u-output">
-                <div class="m3u-header">📀 Generated M3U File</div>
-                <div class="m3u-content" id="m3uContent">#EXTM3U</div>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="action-buttons">
-                <button class="action-btn primary" onclick="downloadM3U()">⬇️ Download .m3u</button>
-                <button class="action-btn success" onclick="copyM3U()">📋 Copy M3U</button>
-                <button class="action-btn" onclick="openViewSource()">🔍 Open View Source</button>
+            
+            <!-- Right Panel: Auto Extract -->
+            <div class="extract-panel">
+                <div class="panel-header">
+                    🔍 AUTO-EXTRACTED | <span style="color:#fbbf24;">M3U8 + LOGO</span>
+                </div>
+                <div class="extract-content" id="extractContent">
+                    <div style="color:#94a3b8; text-align:center; margin-top:50px;">
+                        ⚡ Maghintay habang naglo-load ang page...
+                    </div>
+                </div>
             </div>
         </div>
-
-        <div class="footer">
-            ⚡ Auto-generate: view-source + extract m3u8 + logo + create m3u
+        
+        <div class="status-bar" id="statusBar">
+            ✅ Ready | I-paste ang movie link at i-click GO
         </div>
     </div>
 
     <script>
-        // Database ng mga verified links at logos
-        const movieDB = {
-            'kinsenas-katapusan-2022': {
-                title: 'Kinsenas, Katapusan (2022)',
-                logo: 'https://media.themoviedb.org/t/p/w440_and_h660_face/lUGrP7WkSCjCVp9pB5Biubw2CKV.jpg',
-                m3u8: 'https://bigf.bigo.sg/asia_live/V4s7/0JQ5zV.mp4'
-            },
-            'sagaran-mov18plus-full-vivamax-adult-18-movie-online': {
-                title: 'Sagaran (2026)',
-                logo: 'https://image.tmdb.org/t/p/w500/x44TC1EEYDR7Qo6ZGECabsnzkdQ.jpg',
-                m3u8: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2026/0207/00/1770390569432463.mp4/manifest.m3u8?rp=o00'
-            },
-            'foreplay': {
-                title: 'Foreplay (2026)',
-                logo: 'https://image.tmdb.org/t/p/w500/gO76jmB6I7vV6w3lSH6F86mktC5.jpg',
-                m3u8: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2026/0206/23/1770389835802692.mp4/manifest.m3u8?rp=o00'
-            },
-            'sirena': {
-                title: 'Sirena (2026)',
-                logo: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgmAqgjzX_2EmNP2QGcUPHFcMj84foHzq1DL1RtbJ0PqiSC6Dc2XX8m67WHMdMXjn1UlFXYhz3MxbrGgB1d3V_JWQxVBzT4rLOE9_9mTlRIGxggLQXWxUantcWNDXZ_LKMP98DSeVMxQY40ps69of5LC4Wf3pIT2Jgh27x37GEI4aUURpLf_u7kKhN4NAE/s1600/Sirena.jpg',
-                m3u8: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2026/0131/13/1769834910463593.mp4/manifest.m3u8?rp=o00'
-            },
-            'patikim-ni-robb-guinto': {
-                title: 'Patikim ni Robb Guinto (2026)',
-                logo: 'https://image.tmdb.org/t/p/w500/4rL4XpHnngzElgdYDqaDtZnmtEH.jpg',
-                m3u8: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2026/0131/13/1769834663691618.mp4/manifest.m3u8?rp=o00'
-            },
-            'bagong-tukso': {
-                title: 'Bagong Tukso (2026)',
-                logo: 'https://image.tmdb.org/t/p/w500/t7nlhiZNaGdXPmbsTM872VlZgXD.jpg',
-                m3u8: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2026/0126/00/1769353229957853.mp4/manifest.m3u8?rp=o00'
-            },
-            'claim-me': {
-                title: 'Claim Me (2026)',
-                logo: 'https://image.tmdb.org/t/p/w500/2YZ24F49pRkNb45YWI6yckrTYE.jpg',
-                m3u8: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2026/0121/23/1769005117895094.mp4/manifest.m3u8?rp=o00'
-            },
-            'stepmom': {
-                title: 'Stepmom - 새엄마들 (2019)',
-                logo: 'https://1.bp.blogspot.com/-b_5eBAogJf8/Xna1_iOWahI/AAAAAAAABMA/H8UvYeeNtOEpEBPTcKV92lkqtDTkrrWMACNcBGAsYHQ/s1600/Stepmom%2B2019.jpg',
-                m3u8: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2026/0206/22/1770389524012954.mp4/manifest.m3u8?rp=o00'
-            }
+        // Database ng mga kilalang patterns
+        const patterns = {
+            m3u8: /(https?:[^"'\s]+\.m3u8[^"'\s]*)/g,
+            logo: /(https?:[^"'\s]+\.(jpg|jpeg|png|webp)[^"'\s]*)/g,
+            tmdbLogo: /https:\/\/image\.tmdb\.org\/[^"'\s]+/g,
+            sooplive: /(https?:[^"'\s]*sooplive[^"'\s]*\.m3u8[^"'\s]*)/g,
+            bigo: /(https?:[^"'\s]*bigo[^"'\s]*\.mp4[^"'\s]*)/g
         };
 
-        function processMovie() {
-            let url = document.getElementById('movieLink').value.trim();
+        async function loadPage() {
+            let url = document.getElementById('urlInput').value.trim();
             
             if (!url) {
-                alert('Please paste a movie link!');
+                alert('Please enter a URL');
                 return;
             }
 
-            // Lagyan ng view-source sa unahan
-            document.getElementById('viewSourceCmd').textContent = 'view-source:' + url;
+            // Update status
+            document.getElementById('statusBar').innerHTML = '⏳ Loading page source...';
+            document.getElementById('sourceContent').innerHTML = '⏳ Fetching page source...';
+            document.getElementById('extractContent').innerHTML = '<div style="color:#94a3b8; text-align:center; margin-top:50px;">⏳ Extracting M3U8 and logo...</div>';
 
-            // Hanapin kung anong movie
-            let foundMovie = null;
-            for (let key in movieDB) {
-                if (url.includes(key)) {
-                    foundMovie = movieDB[key];
-                    break;
-                }
-            }
-
-            if (foundMovie) {
-                // Display logo
-                let logoImg = document.getElementById('movieLogo');
-                logoImg.src = foundMovie.logo;
-                logoImg.style.display = 'block';
-                document.getElementById('logoPlaceholder').style.display = 'none';
-                document.getElementById('logoUrl').textContent = foundMovie.logo;
+            try {
+                // Use a CORS proxy to fetch the page
+                let proxy = 'https://api.allorigins.win/raw?url=';
+                let response = await fetch(proxy + encodeURIComponent(url));
+                let html = await response.text();
                 
-                // Display title and m3u8
-                document.getElementById('movieTitle').textContent = foundMovie.title;
-                document.getElementById('m3u8Link').textContent = foundMovie.m3u8;
+                // Display source
+                displaySource(html);
                 
-                // Generate M3U content
-                let m3uContent = `#EXTM3U\n#EXTINF:-1 tvg-logo="${foundMovie.logo}",${foundMovie.title}\n${foundMovie.m3u8}`;
-                document.getElementById('m3uContent').textContent = m3uContent;
-            } else {
-                // Generic display
-                document.getElementById('movieLogo').style.display = 'none';
-                document.getElementById('logoPlaceholder').style.display = 'block';
-                document.getElementById('logoPlaceholder').textContent = '❓';
-                document.getElementById('logoUrl').textContent = 'No logo found';
-                document.getElementById('movieTitle').textContent = 'Unknown Movie';
-                document.getElementById('m3u8Link').textContent = 'Hanapin sa page source (Ctrl+F) ang "m3u8"';
+                // Auto-extract
+                extractAll(html, url);
                 
-                let m3uContent = `#EXTM3U\n#EXTINF:-1,Unknown Movie\n# Hanapin ang m3u8 link sa page source`;
-                document.getElementById('m3uContent').textContent = m3uContent;
+                document.getElementById('statusBar').innerHTML = '✅ Page loaded successfully | Found: ' + 
+                    countMatches(html, patterns.m3u8) + ' M3U8 | ' + 
+                    countMatches(html, patterns.logo) + ' images';
+                    
+            } catch (error) {
+                document.getElementById('sourceContent').innerHTML = '❌ Error loading page: ' + error;
+                document.getElementById('extractContent').innerHTML = '<div style="color:#ef4444; text-align:center; margin-top:50px;">❌ Failed to load page</div>';
+                document.getElementById('statusBar').innerHTML = '❌ Error: ' + error.message;
             }
-
-            document.getElementById('resultBox').classList.add('show');
         }
 
-        function useExample(url) {
-            document.getElementById('movieLink').value = url;
-            processMovie();
-        }
-
-        function copyToClipboard(type) {
-            let text = '';
-            if (type === 'viewSource') {
-                text = document.getElementById('viewSourceCmd').textContent;
-            } else if (type === 'm3u8') {
-                text = document.getElementById('m3u8Link').textContent;
-            }
-            navigator.clipboard.writeText(text).then(() => {
-                alert('Copied to clipboard!');
-            });
-        }
-
-        function openViewSource() {
-            let url = document.getElementById('viewSourceCmd').textContent;
-            window.open(url, '_blank');
-        }
-
-        function copyM3U() {
-            let m3u = document.getElementById('m3uContent').textContent;
-            navigator.clipboard.writeText(m3u).then(() => {
-                alert('M3U copied to clipboard!');
-            });
-        }
-
-        function downloadM3U() {
-            let m3u = document.getElementById('m3uContent').textContent;
-            let title = document.getElementById('movieTitle').textContent;
-            let filename = title.toLowerCase().replace(/\s+/g, '_') + '.m3u';
+        function displaySource(html) {
+            // Format HTML for display
+            let formatted = html
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/(https?:[^"'\s]+\.m3u8[^"'\s]*)/g, '<span style="background:#4ade80; color:#000; padding:2px;">$1</span>')
+                .replace(/(https?:[^"'\s]*sooplive[^"'\s]*)/g, '<span style="background:#fbbf24; color:#000; padding:2px;">$1</span>');
             
-            let blob = new Blob([m3u], { type: 'text/plain' });
+            document.getElementById('sourceContent').innerHTML = formatted;
+        }
+
+        function extractAll(html, pageUrl) {
+            let extractDiv = document.getElementById('extractContent');
+            let output = '';
+
+            // Extract M3U8 links
+            let m3u8Matches = [...html.matchAll(patterns.m3u8)];
+            let uniqueM3u8 = [...new Set(m3u8Matches.map(m => m[0]))];
+            
+            if (uniqueM3u8.length > 0) {
+                output += '<div class="m3u8-found">';
+                output += '<div style="color:#4ade80; font-weight:bold; margin-bottom:10px;">🎥 M3U8 FOUND</div>';
+                
+                uniqueM3u8.forEach((link, index) => {
+                    output += `<div class="m3u8-link" id="m3u8_${index}">${link}</div>`;
+                });
+                
+                output += '<div class="btn-group">';
+                output += `<button class="btn btn-primary" onclick="copyM3U8('${uniqueM3u8[0]}')">📋 Copy First M3U8</button>`;
+                output += `<button class="btn btn-success" onclick="downloadM3U('${uniqueM3u8[0]}')">⬇️ Download .m3u</button>`;
+                output += '</div>';
+                output += '</div>';
+            } else {
+                output += '<div class="m3u8-found" style="border-left-color:#ef4444;">';
+                output += '<div style="color:#ef4444; font-weight:bold;">❌ NO M3U8 FOUND</div>';
+                output += '<div style="color:#94a3b8; margin-top:10px;">Try searching manually sa source (Ctrl+F) for: m3u8, manifest, playlist</div>';
+                output += '</div>';
+            }
+
+            // Extract Logo
+            let logoMatches = [...html.matchAll(patterns.logo)];
+            let uniqueLogos = [...new Set(logoMatches.map(m => m[0]))];
+            
+            // Filter for TMDB logos (mas maganda)
+            let tmdbLogos = uniqueLogos.filter(logo => logo.includes('tmdb') || logo.includes('themoviedb'));
+            
+            if (tmdbLogos.length > 0) {
+                output += '<div class="logo-found">';
+                output += '<div style="color:#fbbf24; font-weight:bold; margin-bottom:10px;">🖼️ LOGO FOUND</div>';
+                output += `<img src="${tmdbLogos[0]}" class="logo-preview" onerror="this.style.display='none'">`;
+                output += `<div class="logo-url">${tmdbLogos[0]}</div>`;
+                output += '<button class="btn btn-warning" style="margin-top:10px;" onclick="copyLogo(\'' + tmdbLogos[0] + '\')">📋 Copy Logo URL</button>';
+                output += '</div>';
+            } else if (uniqueLogos.length > 0) {
+                output += '<div class="logo-found">';
+                output += '<div style="color:#fbbf24; font-weight:bold; margin-bottom:10px;">🖼️ LOGO FOUND</div>';
+                output += `<img src="${uniqueLogos[0]}" class="logo-preview" onerror="this.style.display='none'">`;
+                output += `<div class="logo-url">${uniqueLogos[0]}</div>`;
+                output += '<button class="btn btn-warning" style="margin-top:10px;" onclick="copyLogo(\'' + uniqueLogos[0] + '\')">📋 Copy Logo URL</button>';
+                output += '</div>';
+            }
+
+            // Add movie info
+            output += '<div style="background:#16213e; padding:15px; border-radius:5px; margin-top:15px;">';
+            output += '<div style="color:#94a3b8; margin-bottom:5px;">📌 Movie Info</div>';
+            
+            // Try to get title
+            let titleMatch = html.match(/<title>(.+?)<\/title>/);
+            if (titleMatch) {
+                output += `<div style="color:#fff;">${titleMatch[1]}</div>`;
+            }
+            
+            output += '</div>';
+
+            extractDiv.innerHTML = output;
+        }
+
+        function countMatches(html, pattern) {
+            let matches = html.match(pattern);
+            return matches ? matches.length : 0;
+        }
+
+        function copyM3U8(link) {
+            navigator.clipboard.writeText(link);
+            document.getElementById('statusBar').innerHTML = '✅ M3U8 link copied to clipboard!';
+        }
+
+        function copyLogo(logo) {
+            navigator.clipboard.writeText(logo);
+            document.getElementById('statusBar').innerHTML = '✅ Logo URL copied to clipboard!';
+        }
+
+        function downloadM3U(m3u8Link) {
+            let title = document.querySelector('.logo-found')?.previousElementSibling?.textContent || 'movie';
+            let m3uContent = `#EXTM3U\n#EXTINF:-1,${title}\n${m3u8Link}`;
+            
+            let blob = new Blob([m3uContent], {type: 'text/plain'});
             let a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
-            a.download = filename;
+            a.download = 'movie.m3u';
             a.click();
+            
+            document.getElementById('statusBar').innerHTML = '✅ M3U file downloaded!';
         }
+
+        // Load default page
+        window.onload = function() {
+            loadPage();
+        };
     </script>
 </body>
 </html>
