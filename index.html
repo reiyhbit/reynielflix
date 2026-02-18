@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cat3Movie M3U Generator</title>
+    <title>Cat3Movie Video Extractor</title>
     <style>
         * {
             margin: 0;
@@ -20,7 +20,6 @@
             max-width: 1200px;
             margin: 0 auto;
         }
-        /* Header */
         .header {
             background: rgba(255,255,255,0.1);
             backdrop-filter: blur(10px);
@@ -38,7 +37,6 @@
             color: rgba(255,255,255,0.8);
         }
         
-        /* URL Bar */
         .url-bar {
             display: flex;
             gap: 10px;
@@ -78,7 +76,6 @@
             transform: translateY(-2px);
         }
         
-        /* Proxy Selector */
         .proxy-selector {
             display: flex;
             gap: 10px;
@@ -103,7 +100,6 @@
             border-color: #4CAF50;
         }
         
-        /* Main Content */
         .main-content {
             display: flex;
             gap: 20px;
@@ -131,19 +127,12 @@
             overflow: auto;
         }
         
-        /* Source Panel */
         .source-content {
             font-family: monospace;
             font-size: 12px;
             color: #0ff;
             white-space: pre-wrap;
             line-height: 1.5;
-        }
-        .highlight {
-            background: #4ade80;
-            color: black;
-            padding: 2px 4px;
-            border-radius: 3px;
         }
         .highlight-m3u8 {
             background: #ff6b6b;
@@ -152,9 +141,21 @@
             border-radius: 3px;
             font-weight: bold;
         }
+        .highlight-mp4 {
+            background: #4ade80;
+            color: black;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        .highlight-sooplive {
+            background: #fbbf24;
+            color: black;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
         
-        /* Extract Panel */
-        .m3u8-found {
+        .video-found {
             background: rgba(74, 222, 128, 0.1);
             border-left: 4px solid #4ade80;
             padding: 15px;
@@ -168,7 +169,7 @@
             margin-bottom: 15px;
             border-radius: 5px;
         }
-        .m3u8-link {
+        .video-link {
             background: rgba(0,0,0,0.3);
             color: #4ade80;
             padding: 10px;
@@ -186,7 +187,6 @@
             border: 2px solid #fbbf24;
         }
         
-        /* M3U Output */
         .m3u-output {
             background: rgba(0,0,0,0.3);
             border-radius: 10px;
@@ -211,7 +211,6 @@
             white-space: pre-wrap;
         }
         
-        /* Buttons */
         .btn {
             padding: 10px 20px;
             border: none;
@@ -244,7 +243,6 @@
             margin-top: 15px;
         }
         
-        /* Status Bar */
         .status-bar {
             background: rgba(0,0,0,0.3);
             padding: 10px 20px;
@@ -254,7 +252,6 @@
             font-size: 14px;
         }
         
-        /* Manual Mode */
         .manual-area {
             width: 100%;
             height: 300px;
@@ -267,47 +264,57 @@
             font-size: 12px;
             margin: 10px 0;
         }
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .badge-m3u8 {
+            background: #ff6b6b;
+            color: white;
+        }
+        .badge-mp4 {
+            background: #4ade80;
+            color: black;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Header -->
         <div class="header">
-            <h1>🎬 Cat3Movie M3U Generator</h1>
-            <p>I-paste ang movie link at auto-generate ng M3U file kasama ang logo</p>
+            <h1>🎬 Cat3Movie Video Extractor</h1>
+            <p>Auto-detect: .m3u8 | .mp4 | .mkv | sooplive | bigo</p>
         </div>
 
-        <!-- URL Bar -->
         <div class="url-bar">
             <input type="text" class="url-input" id="urlInput" placeholder="https://www.cat3movie.club/movie-name/" value="https://www.cat3movie.club/bulong-ng-laman/">
-            <button class="nav-btn" onclick="loadPage()">GENERATE M3U</button>
+            <button class="nav-btn" onclick="loadPage()">EXTRACT VIDEO</button>
         </div>
 
-        <!-- Proxy Selector -->
         <div class="proxy-selector" id="proxySelector">
             <button class="proxy-btn active" onclick="setProxy('corsproxy')">🔄 CORS Proxy</button>
             <button class="proxy-btn" onclick="setProxy('allorigins')">🌐 AllOrigins</button>
             <button class="proxy-btn" onclick="setProxy('thingproxy')">🔧 ThingProxy</button>
         </div>
 
-        <!-- Main Content -->
         <div class="main-content">
-            <!-- Left Panel: View Source -->
             <div class="panel">
                 <div class="panel-header">
-                    📄 VIEW SOURCE | <span style="color: #4ade80;">Ctrl+F: "m3u8"</span>
+                    📄 VIEW SOURCE | <span style="color: #4ade80;">Hanapin: video files</span>
                 </div>
                 <div class="panel-content">
                     <div class="source-content" id="sourceContent">
-                        I-paste ang URL at i-click GENERATE M3U
+                        I-paste ang URL at i-click EXTRACT VIDEO
                     </div>
                 </div>
             </div>
 
-            <!-- Right Panel: Extract & Generate -->
             <div class="panel">
                 <div class="panel-header">
-                    🔍 EXTRACT & GENERATE | <span style="color: #fbbf24;">M3U8 + LOGO = M3U</span>
+                    🔍 EXTRACTED VIDEOS | <span style="color: #fbbf24;">.m3u8 | .mp4</span>
                 </div>
                 <div class="panel-content" id="extractContent">
                     <div style="color: rgba(255,255,255,0.5); text-align: center; padding: 50px 20px;">
@@ -317,17 +324,17 @@
             </div>
         </div>
 
-        <!-- Status Bar -->
         <div class="status-bar" id="statusBar">
-            ✅ Ready | I-paste ang movie link at i-click GENERATE M3U
+            ✅ Ready | Auto-detect lahat ng video formats
         </div>
     </div>
 
     <script>
         let currentProxy = 'corsproxy';
-        let currentM3U8 = '';
+        let currentVideo = '';
         let currentLogo = '';
         let currentTitle = '';
+        let videoFormat = '';
 
         const proxies = {
             'corsproxy': 'https://corsproxy.io/?',
@@ -354,9 +361,8 @@
 
             updateStatus('⏳ Loading page source...');
             document.getElementById('sourceContent').innerHTML = '⏳ Fetching page source...';
-            document.getElementById('extractContent').innerHTML = '<div style="color: rgba(255,255,255,0.5); text-align: center; padding: 50px 20px;">⏳ Extracting M3U8 and logo...</div>';
+            document.getElementById('extractContent').innerHTML = '<div style="color: rgba(255,255,255,0.5); text-align: center; padding: 50px 20px;">⏳ Extracting videos...</div>';
 
-            // Try proxies
             let html = null;
             
             for (let proxy of ['corsproxy', 'allorigins', 'thingproxy']) {
@@ -384,19 +390,25 @@
                 displaySource(html);
                 extractAll(html);
             } else {
-                // Manual mode
                 showManualMode(url);
             }
         }
 
         function displaySource(html) {
-            // Format HTML with highlights
+            // Format HTML with highlights for different video formats
             let formatted = html
                 .replace(/</g, '&lt;')
                 .replace(/>/g, '&gt;')
+                // Highlight .m3u8 files
                 .replace(/(https?:[^"'\s]+\.m3u8[^"'\s]*)/g, '<span class="highlight-m3u8">$1</span>')
-                .replace(/(https?:[^"'\s]*sooplive[^"'\s]*)/g, '<span class="highlight">$1</span>')
-                .replace(/("file":"[^"]+")/g, '<span class="highlight">$1</span>');
+                // Highlight .mp4 files
+                .replace(/(https?:[^"'\s]+\.mp4[^"'\s]*)/g, '<span class="highlight-mp4">$1</span>')
+                // Highlight sooplive
+                .replace(/(https?:[^"'\s]*sooplive[^"'\s]*)/g, '<span class="highlight-sooplive">$1</span>')
+                // Highlight bigo
+                .replace(/(https?:[^"'\s]*bigo[^"'\s]*)/g, '<span class="highlight-sooplive">$1</span>')
+                // Highlight file sources
+                .replace(/("file":"[^"]+")/g, '<span class="highlight-mp4">$1</span>');
             
             document.getElementById('sourceContent').innerHTML = formatted;
         }
@@ -405,34 +417,67 @@
             let extractDiv = document.getElementById('extractContent');
             let output = '';
 
-            // Reset current values
-            currentM3U8 = '';
+            // Reset
+            currentVideo = '';
             currentLogo = '';
             currentTitle = '';
 
-            // 1. Extract M3U8
-            let m3u8Patterns = [
-                /file:\s*["']([^"']+\.m3u8[^"']*)["']/,
-                /(https?:[^"'\s]+sooplive[^"'\s]+\.m3u8[^"'\s]*)/
+            // 1. Find ALL video files (m3u8, mp4, mkv, etc)
+            let videoPatterns = [
+                // M3U8 patterns
+                { pattern: /file:\s*["']([^"']+\.m3u8[^"']*)["']/g, type: 'm3u8' },
+                { pattern: /(https?:[^"'\s]+\.m3u8[^"'\s]*)/g, type: 'm3u8' },
+                { pattern: /source:\s*["']([^"']+\.m3u8[^"']*)["']/g, type: 'm3u8' },
+                { pattern: /src:\s*["']([^"']+\.m3u8[^"']*)["']/g, type: 'm3u8' },
+                // MP4 patterns
+                { pattern: /file:\s*["']([^"']+\.mp4[^"']*)["']/g, type: 'mp4' },
+                { pattern: /(https?:[^"'\s]+\.mp4[^"'\s]*)/g, type: 'mp4' },
+                { pattern: /source:\s*["']([^"']+\.mp4[^"']*)["']/g, type: 'mp4' },
+                { pattern: /src:\s*["']([^"']+\.mp4[^"']*)["']/g, type: 'mp4' },
+                // Sooplive specific
+                { pattern: /(https?:[^"'\s]*sooplive[^"'\s]+\.(m3u8|mp4)[^"'\s]*)/g, type: 'sooplive' },
+                // Bigo specific
+                { pattern: /(https?:[^"'\s]*bigo[^"'\s]+\.mp4[^"'\s]*)/g, type: 'bigo' }
             ];
 
-            for (let pattern of m3u8Patterns) {
-                let match = html.match(pattern);
-                if (match && match[1]) {
-                    currentM3U8 = match[1];
-                    break;
-                }
-            }
+            let allVideos = [];
 
-            if (currentM3U8) {
-                output += '<div class="m3u8-found">';
-                output += '<div style="color:#4ade80; font-weight:bold; margin-bottom:10px;">🎥 M3U8 FOUND</div>';
-                output += `<div class="m3u8-link">${currentM3U8}</div>`;
+            videoPatterns.forEach(({pattern, type}) => {
+                let matches = [...html.matchAll(pattern)];
+                matches.forEach(match => {
+                    let url = match[1] || match[0];
+                    if (url && !allVideos.some(v => v.url === url)) {
+                        allVideos.push({
+                            url: url,
+                            type: type
+                        });
+                    }
+                });
+            });
+
+            if (allVideos.length > 0) {
+                output += '<div class="video-found">';
+                output += '<div style="color:#4ade80; font-weight:bold; margin-bottom:10px;">🎥 VIDEO FOUND</div>';
+                
+                allVideos.forEach((video, index) => {
+                    let badgeColor = video.type === 'm3u8' ? '#ff6b6b' : '#4ade80';
+                    output += `<div style="margin-bottom:15px; padding:10px; background:rgba(0,0,0,0.2); border-radius:5px;">`;
+                    output += `<div><span class="badge" style="background:${badgeColor};">${video.type}</span></div>`;
+                    output += `<div class="video-link">${video.url}</div>`;
+                    
+                    // Save first video as current
+                    if (index === 0) {
+                        currentVideo = video.url;
+                        videoFormat = video.type;
+                    }
+                    output += `</div>`;
+                });
+                
                 output += '</div>';
             } else {
-                output += '<div class="m3u8-found" style="border-left-color:#ef4444;">';
-                output += '<div style="color:#ef4444; font-weight:bold;">❌ NO M3U8 FOUND</div>';
-                output += '<div style="color:rgba(255,255,255,0.5); margin-top:10px;">Try searching manually: "file:", "sources:", "m3u8"</div>';
+                output += '<div class="video-found" style="border-left-color:#ef4444;">';
+                output += '<div style="color:#ef4444; font-weight:bold;">❌ NO VIDEO FOUND</div>';
+                output += '<div style="color:rgba(255,255,255,0.5); margin-top:10px;">Try searching: file:, source:, src:, .mp4, .m3u8</div>';
                 output += '</div>';
             }
 
@@ -445,38 +490,27 @@
                 output += '<div class="logo-found">';
                 output += '<div style="color:#fbbf24; font-weight:bold; margin-bottom:10px;">🖼️ LOGO FOUND</div>';
                 output += `<img src="${currentLogo}" class="logo-preview" onerror="this.style.display='none'">`;
-                output += `<div class="m3u8-link" style="color:#fbbf24;">${currentLogo}</div>`;
+                output += `<div class="video-link" style="color:#fbbf24;">${currentLogo}</div>`;
                 output += '</div>';
             }
 
             // 3. Extract Title
             let titleMatch = html.match(/<title>(.+?)<\/title>/);
             if (titleMatch) {
-                currentTitle = titleMatch[1].replace(' | Cat3Movie', '').trim();
+                currentTitle = titleMatch[1].replace(/ \| Cat3Movie.*$/, '').trim();
                 output += '<div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:5px; margin-top:15px;">';
                 output += '<div style="color:rgba(255,255,255,0.5); margin-bottom:5px;">📌 Movie Title</div>';
                 output += `<div style="color:#fff; font-weight:bold;">${currentTitle}</div>`;
                 output += '</div>';
             }
 
-            // 4. Generate M3U (kung may m3u8 at logo)
-            if (currentM3U8 && currentLogo) {
-                let m3uContent = `#EXTM3U\n#EXTINF:-1 tvg-logo="${currentLogo}",${currentTitle || 'Movie'}\n${currentM3U8}`;
+            // 4. Generate M3U (kung may video)
+            if (currentVideo) {
+                let logoTag = currentLogo ? ` tvg-logo="${currentLogo}"` : '';
+                let m3uContent = `#EXTM3U\n#EXTINF:-1${logoTag},${currentTitle || 'Movie'}\n${currentVideo}`;
                 
                 output += '<div class="m3u-output">';
                 output += '<div class="m3u-header">📀 GENERATED M3U FILE</div>';
-                output += `<div class="m3u-content" id="m3uContent">${m3uContent}</div>`;
-                output += '<div class="btn-group">';
-                output += '<button class="btn btn-primary" onclick="downloadM3U()">⬇️ DOWNLOAD .m3u</button>';
-                output += '<button class="btn btn-success" onclick="copyM3U()">📋 COPY M3U</button>';
-                output += '</div>';
-                output += '</div>';
-            } else if (currentM3U8) {
-                // M3U8 lang meron, walang logo
-                let m3uContent = `#EXTM3U\n#EXTINF:-1,${currentTitle || 'Movie'}\n${currentM3U8}`;
-                
-                output += '<div class="m3u-output">';
-                output += '<div class="m3u-header">📀 GENERATED M3U FILE (no logo)</div>';
                 output += `<div class="m3u-content" id="m3uContent">${m3uContent}</div>`;
                 output += '<div class="btn-group">';
                 output += '<button class="btn btn-primary" onclick="downloadM3U()">⬇️ DOWNLOAD .m3u</button>';
@@ -501,7 +535,7 @@
             
             document.getElementById('extractContent').innerHTML = `
                 <textarea class="manual-area" id="manualSource" placeholder="I-paste ang HTML source dito..."></textarea>
-                <button class="btn btn-primary" style="width:100%;" onclick="processManualSource()">🔍 GENERATE M3U FROM SOURCE</button>
+                <button class="btn btn-primary" style="width:100%;" onclick="processManualSource()">🔍 EXTRACT VIDEOS</button>
             `;
             
             updateStatus('📝 Manual mode - I-paste ang source');
