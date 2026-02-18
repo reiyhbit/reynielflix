@@ -121,6 +121,28 @@
             background-color: #000;
         }
 
+        /* Now Playing Info */
+        .now-playing {
+            position: absolute;
+            top: 80px;
+            left: 40px;
+            z-index: 50;
+            max-width: 600px;
+        }
+
+        .now-playing h2 {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .now-playing p {
+            font-size: 16px;
+            color: #e5e5e5;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
         /* Custom video controls (Netflix style) */
         .custom-controls {
             position: absolute;
@@ -437,6 +459,17 @@
             color: #666;
         }
 
+        /* Stream count badge */
+        .stream-count {
+            display: inline-block;
+            background-color: #e50914;
+            color: #fff;
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            margin-left: 10px;
+        }
+
         /* Responsive design */
         @media (max-width: 768px) {
             .header {
@@ -454,6 +487,15 @@
             .hero {
                 height: 50vh;
                 min-height: 400px;
+            }
+            
+            .now-playing {
+                left: 20px;
+                right: 20px;
+            }
+            
+            .now-playing h2 {
+                font-size: 24px;
             }
             
             .card {
@@ -494,6 +536,12 @@
     <!-- Hero section with video player -->
     <div class="hero">
         <div class="video-container">
+            <!-- Now playing info -->
+            <div class="now-playing" id="now-playing">
+                <h2 id="now-playing-title">Select a stream to play</h2>
+                <p id="now-playing-url"></p>
+            </div>
+
             <video id="video-player" poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1920' height='1080' viewBox='0 0 1920 1080'%3E%3Crect width='1920' height='1080' fill='%23141414'/%3E%3Ctext x='960' y='540' font-family='Arial' font-size='48' fill='%23e50914' text-anchor='middle' dy='.3em'%3ENetflix%3C/text%3E%3Ctext x='960' y='600' font-family='Arial' font-size='24' fill='%23666' text-anchor='middle' dy='.3em'%3ESelect a stream to play%3C/text%3E%3C/svg%3E"></video>
             
             <!-- Loading indicator -->
@@ -534,7 +582,10 @@
     <!-- Content rows (Netflix style) -->
     <div class="content">
         <div class="category-row">
-            <h2 class="category-title">Available Streams</h2>
+            <h2 class="category-title">
+                Available Streams 
+                <span class="stream-count" id="stream-count">0</span>
+            </h2>
             <div class="row-items" id="streams-row"></div>
         </div>
     </div>
@@ -543,7 +594,7 @@
     <div class="modal" id="playlist-modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>All Streams</h2>
+                <h2>All Streams <span class="stream-count" id="modal-stream-count">0</span></h2>
                 <button class="close-btn" onclick="closeModal()"><i class="fas fa-times"></i></button>
             </div>
             <div class="playlist-items" id="playlist-items">
@@ -614,14 +665,20 @@
                 
                 const m3uText = await response.text();
                 console.log('Playlist fetched, length:', m3uText.length);
+                console.log('First 500 characters:', m3uText.substring(0, 500));
                 
                 // Parse M3U playlist
                 playlistData = parseM3U(m3uText);
                 console.log('Parsed playlist items:', playlistData.length);
+                console.log('Playlist data:', playlistData);
+                
+                // Update stream count
+                updateStreamCount();
                 
                 if (playlistData.length > 0) {
                     // Populate content rows first
                     populateContentRows();
+                    populatePlaylistModal();
                     
                     // Load the first stream
                     await loadStream(playlistData[0].url);
@@ -637,57 +694,167 @@
             }
         }
 
-        // Parse M3U playlist
+        // Parse M3U playlist - Enhanced version
         function parseM3U(m3uText) {
             const lines = m3uText.split('\n');
             const items = [];
-            let currentItem = {};
+            let currentItem = null;
+            let lineNumber = 0;
 
             for (let i = 0; i < lines.length; i++) {
                 const line = lines[i].trim();
+                lineNumber++;
+                
+                if (line === '') continue;
                 
                 if (line.startsWith('#EXTINF:')) {
-                    // Parse EXTINF line
+                    // Parse EXTINF line - format: #EXTINF:duration,title
                     const infoMatch = line.match(/#EXTINF:([^,]*),(.*)/);
                     if (infoMatch) {
+                        const duration = infoMatch[1].trim();
+                        let title = infoMatch[2].trim();
+                        
+                        // Clean up title - remove any remaining tags or special characters
+                        title = title.replace(/[#*{}[\]]/, '').trim();
+                        
+                        // If title is empty, use a default
+                        if (!title) {
+                            title = 'Stream ' + (items.length + 1);
+                        }
+                        
                         currentItem = {
-                            duration: infoMatch[1].trim(),
-                            title: infoMatch[2].trim() || 'Unknown Stream',
-                            url: ''
+                            duration: duration,
+                            title: title,
+                            url: '',
+                            lineNumber: lineNumber
                         };
+                        console.log(`Found EXTINF at line ${lineNumber}:`, {duration, title});
                     }
+                } else if (line.startsWith('#EXTGRP:')) {
+                    // Group information - can be ignored or used for categorization
+                    // Format: #EXTGRP:groupname
+                    if (currentItem) {
+                        const groupMatch = line.match(/#EXTGRP:(.*)/);
+                        if (groupMatch) {
+                            currentItem.group = groupMatch[1].trim();
+                        }
+                    }
+                } else if (line.startsWith('#EXTALB:')) {
+                    // Album information
+                    if (currentItem) {
+                        const albumMatch = line.match(/#EXTALB:(.*)/);
+                        if (albumMatch) {
+                            currentItem.album = albumMatch[1].trim();
+                        }
+                    }
+                } else if (line.startsWith('#EXTART:')) {
+                    // Artist information
+                    if (currentItem) {
+                        const artistMatch = line.match(/#EXTART:(.*)/);
+                        if (artistMatch) {
+                            currentItem.artist = artistMatch[1].trim();
+                        }
+                    }
+                } else if (line.startsWith('#') && !line.startsWith('#EXTINF:') && !line.startsWith('#EXTGRP:') && !line.startsWith('#EXTALB:') && !line.startsWith('#EXTART:')) {
+                    // Other comments - ignore
+                    console.log('Ignoring comment:', line);
                 } else if (line && !line.startsWith('#')) {
                     // This is a URL
-                    if (currentItem.title) {
-                        currentItem.url = line;
+                    const url = line;
+                    
+                    if (currentItem) {
+                        // We have metadata from EXTINF
+                        currentItem.url = url;
                         items.push({...currentItem});
-                        currentItem = {};
+                        console.log('Added item with metadata:', currentItem.title);
+                        currentItem = null;
                     } else {
-                        // No EXTINF tag, just add the URL with a generic title
+                        // No metadata, create a generic item
                         items.push({
+                            duration: '0',
                             title: 'Stream ' + (items.length + 1),
-                            url: line,
-                            duration: '0'
+                            url: url,
+                            lineNumber: lineNumber
                         });
+                        console.log('Added generic item from line', lineNumber);
                     }
                 }
             }
 
-            // If still no items, try to treat every non-empty line as URL
-            if (items.length === 0) {
-                lines.forEach(line => {
-                    line = line.trim();
-                    if (line && !line.startsWith('#')) {
-                        items.push({
-                            title: 'Stream ' + (items.length + 1),
-                            url: line,
-                            duration: '0'
-                        });
-                    }
-                });
+            // If we have a current item but no URL (malformed playlist), ignore it
+            if (currentItem) {
+                console.log('Warning: Incomplete item at end of playlist:', currentItem);
             }
 
+            // Log all parsed items
+            console.log('Total parsed items:', items.length);
+            items.forEach((item, index) => {
+                console.log(`Item ${index + 1}:`, {
+                    title: item.title,
+                    url: item.url.substring(0, 50) + '...',
+                    duration: item.duration,
+                    group: item.group || 'none'
+                });
+            });
+
             return items;
+        }
+
+        // Update stream count display
+        function updateStreamCount() {
+            const count = playlistData.length;
+            document.getElementById('stream-count').textContent = count;
+            document.getElementById('modal-stream-count').textContent = count;
+        }
+
+        // Populate playlist modal
+        function populatePlaylistModal() {
+            const playlistItems = document.getElementById('playlist-items');
+            playlistItems.innerHTML = '';
+
+            if (playlistData.length === 0) {
+                playlistItems.innerHTML = '<div class="no-streams">No streams available</div>';
+                return;
+            }
+
+            playlistData.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'playlist-item';
+                div.onclick = () => {
+                    loadStream(item.url);
+                    closeModal();
+                };
+                
+                const title = item.title || 'Unknown Stream';
+                const url = item.url || '';
+                const duration = item.duration !== '0' ? ` (${formatDuration(item.duration)})` : '';
+                const group = item.group ? ` [${item.group}]` : '';
+                
+                div.innerHTML = `
+                    <div class="item-title">
+                        <i class="fas fa-play-circle" style="color: #e50914; margin-right: 8px;"></i>
+                        ${title}${duration}${group}
+                    </div>
+                    <div class="item-url">${url.substring(0, 60)}${url.length > 60 ? '...' : ''}</div>
+                `;
+                
+                playlistItems.appendChild(div);
+            });
+        }
+
+        // Format duration from seconds to readable format
+        function formatDuration(seconds) {
+            if (!seconds || seconds === '0') return '';
+            const secs = parseInt(seconds);
+            if (isNaN(secs)) return '';
+            
+            const hours = Math.floor(secs / 3600);
+            const minutes = Math.floor((secs % 3600) / 60);
+            
+            if (hours > 0) {
+                return `${hours}h ${minutes}m`;
+            }
+            return `${minutes}m`;
         }
 
         // Load a stream
@@ -744,7 +911,11 @@
         function updateVideoInfo() {
             const currentItem = playlistData.find(item => item.url === currentStreamUrl);
             if (currentItem) {
-                document.querySelector('.hero').setAttribute('data-title', currentItem.title);
+                document.getElementById('now-playing-title').textContent = currentItem.title || 'Unknown Stream';
+                document.getElementById('now-playing-url').textContent = currentItem.url.substring(0, 100) + (currentItem.url.length > 100 ? '...' : '');
+            } else {
+                document.getElementById('now-playing-title').textContent = 'Now Playing';
+                document.getElementById('now-playing-url').textContent = '';
             }
         }
 
@@ -774,8 +945,19 @@
             card.onclick = () => loadStream(item.url);
             
             // Get title or create one
-            const title = item.title || 'Unknown Stream';
+            let title = item.title || 'Unknown Stream';
+            
+            // Clean up title - remove any HTML tags or special characters
+            title = title.replace(/<[^>]*>/g, '').trim();
+            
+            // Truncate if too long
             const displayTitle = title.length > 25 ? title.substring(0, 22) + '...' : title;
+            
+            // Get group if available for tooltip
+            const group = item.group ? ` (${item.group})` : '';
+            const duration = item.duration && item.duration !== '0' ? ` - ${formatDuration(item.duration)}` : '';
+            
+            card.title = title + group + duration; // Tooltip on hover
             
             card.innerHTML = `
                 <div class="card-content">
@@ -791,33 +973,6 @@
         // Show playlist modal
         function showPlaylist() {
             const modal = document.getElementById('playlist-modal');
-            const playlistItems = document.getElementById('playlist-items');
-            
-            playlistItems.innerHTML = '';
-            
-            if (playlistData.length === 0) {
-                playlistItems.innerHTML = '<div class="no-streams">No streams available</div>';
-            } else {
-                playlistData.forEach(item => {
-                    const div = document.createElement('div');
-                    div.className = 'playlist-item';
-                    div.onclick = () => {
-                        loadStream(item.url);
-                        closeModal();
-                    };
-                    
-                    const title = item.title || 'Unknown Stream';
-                    const url = item.url || '';
-                    
-                    div.innerHTML = `
-                        <div class="item-title">${title}</div>
-                        <div class="item-url">${url.substring(0, 50)}${url.length > 50 ? '...' : ''}</div>
-                    `;
-                    
-                    playlistItems.appendChild(div);
-                });
-            }
-            
             modal.classList.add('active');
         }
 
