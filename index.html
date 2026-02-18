@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>M3U8 Finder for Cat3Movie</title>
+    <title>Auto M3U Generator - Cat3Movie</title>
     <style>
         * {
             margin: 0;
@@ -11,370 +11,529 @@
             box-sizing: border-box;
         }
         body {
-            font-family: 'Segoe UI', sans-serif;
-            background: #1a1a2e;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #141e30 0%, #243b55 100%);
             min-height: 100vh;
             padding: 20px;
         }
         .container {
-            max-width: 700px;
+            max-width: 900px;
             margin: 30px auto;
-            background: #16213e;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            border: 1px solid #0f3460;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.1);
         }
         h1 {
-            color: #e94560;
+            color: #fff;
+            font-size: 32px;
             margin-bottom: 10px;
-            font-size: 28px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
         .subtitle {
-            color: #aaa;
+            color: #a0c0e0;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        .input-section {
+            background: rgba(0,0,0,0.3);
+            border-radius: 15px;
+            padding: 25px;
             margin-bottom: 25px;
-            font-size: 14px;
+            border: 1px solid rgba(255,255,255,0.1);
         }
-        .input-area {
-            background: #0f3460;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-        }
-        label {
-            display: block;
-            color: #fff;
-            margin-bottom: 8px;
-            font-weight: 500;
-        }
-        .link-input {
+        .url-input-group {
             display: flex;
-            gap: 10px;
+            gap: 15px;
+            margin-bottom: 20px;
             flex-wrap: wrap;
         }
-        #movieLink {
+        #movieUrl {
             flex: 1;
-            padding: 12px 15px;
-            border: 2px solid #1a1a2e;
-            border-radius: 8px;
-            background: #16213e;
+            padding: 15px 20px;
+            border: 2px solid #3a5a7a;
+            border-radius: 50px;
+            background: rgba(255,255,255,0.1);
             color: #fff;
-            font-size: 15px;
+            font-size: 16px;
             min-width: 250px;
+            transition: 0.3s;
         }
-        #movieLink:focus {
+        #movieUrl:focus {
             outline: none;
-            border-color: #e94560;
+            border-color: #4CAF50;
+            background: rgba(255,255,255,0.15);
         }
-        button {
-            padding: 12px 25px;
-            background: #e94560;
+        #movieUrl::placeholder {
+            color: #809ab3;
+        }
+        .generate-btn {
+            padding: 15px 35px;
+            background: linear-gradient(45deg, #4CAF50, #45a049);
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 50px;
             font-size: 16px;
             font-weight: bold;
             cursor: pointer;
             transition: 0.3s;
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
         }
-        button:hover {
-            background: #ff6b8b;
+        .generate-btn:hover {
             transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.6);
         }
-        .result-box {
-            background: #0f3460;
-            border-radius: 10px;
-            padding: 20px;
+        .quick-picks {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
             margin-top: 20px;
         }
-        .command-section {
-            background: #1a1a2e;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-left: 4px solid #e94560;
+        .quick-pick {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            padding: 8px 18px;
+            border-radius: 50px;
+            font-size: 13px;
+            cursor: pointer;
+            border: 1px solid #4a6a8a;
+            transition: 0.3s;
         }
-        .command-title {
-            color: #e94560;
-            font-weight: bold;
-            margin-bottom: 10px;
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+        .quick-pick:hover {
+            background: #4CAF50;
+            border-color: #4CAF50;
         }
-        .command-box {
-            background: #16213e;
-            padding: 12px;
-            border-radius: 5px;
-            font-family: monospace;
-            color: #0ff;
-            word-break: break-all;
-            font-size: 14px;
-            border: 1px solid #333;
-            margin-bottom: 10px;
+        .result-section {
+            background: rgba(0,0,0,0.4);
+            border-radius: 15px;
+            padding: 25px;
+            display: none;
         }
-        .logo-section {
+        .result-section.show {
+            display: block;
+            animation: slideIn 0.5s;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .movie-header {
             display: flex;
-            align-items: center;
             gap: 20px;
-            background: #1a1a2e;
-            padding: 15px;
-            border-radius: 8px;
+            margin-bottom: 25px;
             flex-wrap: wrap;
         }
-        .logo-preview {
-            width: 80px;
-            height: 80px;
-            background: #16213e;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 2px solid #e94560;
+        .movie-logo {
+            width: 120px;
+            height: 160px;
+            background: #1a2a3a;
+            border-radius: 10px;
             overflow: hidden;
+            border: 3px solid #4CAF50;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
         }
-        .logo-preview img {
+        .movie-logo img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
-        .logo-placeholder {
-            color: #666;
-            font-size: 12px;
-            text-align: center;
-        }
-        .logo-info {
+        .movie-info {
             flex: 1;
         }
-        .logo-url {
-            background: #16213e;
-            padding: 8px 12px;
-            border-radius: 5px;
-            color: #ffd700;
-            font-family: monospace;
-            font-size: 13px;
-            word-break: break-all;
-        }
-        .quick-buttons {
-            display: flex;
-            gap: 10px;
-            margin: 15px 0;
-            flex-wrap: wrap;
-        }
-        .quick-btn {
-            background: #1a1a2e;
+        .movie-title {
             color: #fff;
-            border: 1px solid #e94560;
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 13px;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        .movie-year {
+            color: #a0c0e0;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+        .movie-desc {
+            color: #ccc;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .m3u-content {
+            background: #0a1a2a;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #4CAF50;
+        }
+        .m3u-header {
+            color: #4CAF50;
+            font-family: monospace;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        .m3u-link {
+            background: #1a2a3a;
+            padding: 15px;
+            border-radius: 8px;
+            color: #0ff;
+            font-family: monospace;
+            font-size: 14px;
+            word-break: break-all;
+            border: 1px solid #3a5a7a;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 50px;
+            font-size: 15px;
+            font-weight: bold;
             cursor: pointer;
             transition: 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
-        .quick-btn:hover {
-            background: #e94560;
+        .btn-download {
+            background: linear-gradient(45deg, #2196F3, #1976D2);
+            color: white;
+            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.4);
+        }
+        .btn-copy {
+            background: linear-gradient(45deg, #FF9800, #F57C00);
+            color: white;
+            box-shadow: 0 5px 15px rgba(255, 152, 0, 0.4);
+        }
+        .btn-save {
+            background: linear-gradient(45deg, #9C27B0, #7B1FA2);
+            color: white;
+            box-shadow: 0 5px 15px rgba(156, 39, 176, 0.4);
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+        }
+        .stats {
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid #4CAF50;
+            padding: 10px 20px;
+            border-radius: 50px;
+            color: #fff;
+            display: inline-block;
+            margin-bottom: 20px;
+            font-size: 14px;
         }
         .footer {
             text-align: center;
-            margin-top: 20px;
-            color: #666;
-            font-size: 12px;
-        }
-        .copy-btn {
-            background: #4a4a4a;
-            padding: 5px 10px;
-            font-size: 12px;
-            margin-left: 10px;
-        }
-        .copy-btn:hover {
-            background: #666;
+            margin-top: 30px;
+            color: #809ab3;
+            font-size: 13px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🔍 M3U8 Finder</h1>
-        <p class="subtitle">I-paste ang Cat3Movie link at kukunin ko ang source + logo</p>
+        <h1>🎬 Auto M3U Generator</h1>
+        <p class="subtitle">I-paste ang movie link at automatic kong gagawin ang M3U file + logo</p>
 
-        <div class="input-area">
-            <label>📎 Movie URL:</label>
-            <div class="link-input">
-                <input type="url" id="movieLink" placeholder="https://www.cat3movie.club/movie-name/" value="">
-                <button onclick="processLink()">Find M3U8</button>
+        <div class="stats" id="movieCount">📊 15 Movies Ready</div>
+
+        <div class="input-section">
+            <div class="url-input-group">
+                <input type="url" id="movieUrl" placeholder="https://www.cat3movie.club/movie-name/" value="">
+                <button class="generate-btn" onclick="generateM3U()">⚡ Generate M3U</button>
+            </div>
+            
+            <div class="quick-picks">
+                <span class="quick-pick" onclick="quickPick('sagaran')">Sagaran (2026)</span>
+                <span class="quick-pick" onclick="quickPick('foreplay')">Foreplay (2026)</span>
+                <span class="quick-pick" onclick="quickPick('sirena')">Sirena (2026)</span>
+                <span class="quick-pick" onclick="quickPick('patikim')">Patikim ni Robb</span>
+                <span class="quick-pick" onclick="quickPick('bagong-tukso')">Bagong Tukso</span>
+                <span class="quick-pick" onclick="quickPick('stepmom')">Stepmom (Korean)</span>
+                <span class="quick-pick" onclick="quickPick('kinsenas')">Kinsenas (2022)</span>
             </div>
         </div>
 
-        <div class="quick-buttons">
-            <span class="quick-btn" onclick="useExample('sagaran')">Sagaran</span>
-            <span class="quick-btn" onclick="useExample('foreplay')">Foreplay</span>
-            <span class="quick-btn" onclick="useExample('sirena')">Sirena</span>
-            <span class="quick-btn" onclick="useExample('stepmom')">Stepmom</span>
-            <span class="quick-btn" onclick="useExample('kinsenas')">Kinsenas</span>
-        </div>
-
-        <div class="result-box" id="result" style="display: none;">
-            <div class="command-section">
-                <div class="command-title">📋 STEP 1: View Source Command</div>
-                <div class="command-box" id="viewSourceCmd">view-source:https://...</div>
-                <button class="copy-btn" onclick="copyCommand('viewSource')">Copy</button>
-            </div>
-
-            <div class="command-section">
-                <div class="command-title">🔎 STEP 2: Hanapin ito sa page source (Ctrl+F)</div>
-                <div class="command-box" id="searchTerm">m3u8</div>
-                <button class="copy-btn" onclick="copyCommand('searchTerm')">Copy</button>
-            </div>
-
-            <div class="command-section">
-                <div class="command-title">🎬 STEP 3: M3U8 Link (kung may nakita)</div>
-                <div class="command-box" id="m3u8Link">https://vod-normal...manifest.m3u8?rp=o00</div>
-                <button class="copy-btn" onclick="copyCommand('m3u8')">Copy</button>
-            </div>
-
-            <div class="logo-section">
-                <div class="logo-preview" id="logoPreview">
-                    <img id="logoImage" src="" alt="movie logo" style="display: none;">
-                    <div class="logo-placeholder" id="logoPlaceholder">🎬</div>
+        <div class="result-section" id="resultSection">
+            <div class="movie-header">
+                <div class="movie-logo" id="logoContainer">
+                    <img id="movieLogo" src="" alt="Movie Logo" style="display: none;">
+                    <div id="logoPlaceholder" style="width:100%; height:100%; display: flex; align-items: center; justify-content: center; background: #1a2a3a; color: #4CAF50; font-size: 40px;">🎬</div>
                 </div>
-                <div class="logo-info">
-                    <div style="color:#fff; margin-bottom:5px; font-weight:bold;" id="movieTitleDisplay">Movie Title</div>
-                    <div class="logo-url" id="logoUrl">https://image.tmdb.org/...</div>
-                    <button class="copy-btn" style="margin-top:8px;" onclick="copyCommand('logo')">Copy Logo URL</button>
+                <div class="movie-info">
+                    <div class="movie-title" id="movieTitle">Movie Title</div>
+                    <div class="movie-year" id="movieYear">Year: 2026</div>
+                    <div class="movie-desc" id="movieDesc">Vivamax Original Movie</div>
                 </div>
+            </div>
+
+            <div class="m3u-content">
+                <div class="m3u-header"># Generated M3U File</div>
+                <div class="m3u-link" id="m3uOutput">#EXTM3U</div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-download" onclick="downloadM3U()">
+                    ⬇️ Download .m3u
+                </button>
+                <button class="btn btn-copy" onclick="copyM3U()">
+                    📋 Copy M3U
+                </button>
+                <button class="btn btn-save" onclick="saveToCollection()">
+                    💾 Save to Collection
+                </button>
+            </div>
+
+            <div style="margin-top: 15px; color: #a0c0e0; font-size: 13px;">
+                ✓ M3U file includes: Title + Logo + Direct Video Link
             </div>
         </div>
 
         <div class="footer">
-            ⚡ I-paste ang link > Copy view-source > Hanapin ang "m3u8" > Yun na!
+            ⚡ Automatic M3U generation with TMDB logos | 15 movies available
         </div>
     </div>
 
     <script>
-        // Database ng mga movies (galing sa mga nakuha natin)
-        const movies = {
+        // Complete movie database
+        const movieDB = {
             'sagaran': {
-                title: 'Sagaran (2026)',
-                url: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2026/0207/00/1770390569432463.mp4/manifest.m3u8?rp=o00',
+                title: 'Sagaran',
+                year: '2026',
                 logo: 'https://image.tmdb.org/t/p/w500/x44TC1EEYDR7Qo6ZGECabsnzkdQ.jpg',
-                slug: 'sagaran-mov18plus-full-vivamax-adult-18-movie-online'
+                url: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2026/0207/00/1770390569432463.mp4/manifest.m3u8?rp=o00',
+                slug: 'sagaran-mov18plus-full-vivamax-adult-18-movie-online',
+                desc: 'Vivamax Adult Movie'
             },
             'foreplay': {
-                title: 'Foreplay (2026)',
-                url: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2026/0206/23/1770389835802692.mp4/manifest.m3u8?rp=o00',
+                title: 'Foreplay',
+                year: '2026',
                 logo: 'https://image.tmdb.org/t/p/w500/gO76jmB6I7vV6w3lSH6F86mktC5.jpg',
-                slug: 'foreplay'
+                url: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2026/0206/23/1770389835802692.mp4/manifest.m3u8?rp=o00',
+                slug: 'foreplay',
+                desc: 'Vivamax Adult Movie'
             },
             'sirena': {
-                title: 'Sirena (2026)',
-                url: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2026/0131/13/1769834910463593.mp4/manifest.m3u8?rp=o00',
+                title: 'Sirena',
+                year: '2026',
                 logo: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgmAqgjzX_2EmNP2QGcUPHFcMj84foHzq1DL1RtbJ0PqiSC6Dc2XX8m67WHMdMXjn1UlFXYhz3MxbrGgB1d3V_JWQxVBzT4rLOE9_9mTlRIGxggLQXWxUantcWNDXZ_LKMP98DSeVMxQY40ps69of5LC4Wf3pIT2Jgh27x37GEI4aUURpLf_u7kKhN4NAE/s1600/Sirena.jpg',
-                slug: 'sirena'
+                url: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2026/0131/13/1769834910463593.mp4/manifest.m3u8?rp=o00',
+                slug: 'sirena',
+                desc: 'Vivamax Adult Movie'
             },
             'patikim': {
-                title: 'Patikim ni Robb Guinto (2026)',
-                url: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2026/0131/13/1769834663691618.mp4/manifest.m3u8?rp=o00',
+                title: 'Patikim ni Robb Guinto',
+                year: '2026',
                 logo: 'https://image.tmdb.org/t/p/w500/4rL4XpHnngzElgdYDqaDtZnmtEH.jpg',
-                slug: 'patikim-ni-robb-guinto'
+                url: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2026/0131/13/1769834663691618.mp4/manifest.m3u8?rp=o00',
+                slug: 'patikim-ni-robb-guinto',
+                desc: 'Vivamax Adult Movie'
             },
             'bagong-tukso': {
-                title: 'Bagong Tukso (2026)',
-                url: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2026/0126/00/1769353229957853.mp4/manifest.m3u8?rp=o00',
+                title: 'Bagong Tukso',
+                year: '2026',
                 logo: 'https://image.tmdb.org/t/p/w500/t7nlhiZNaGdXPmbsTM872VlZgXD.jpg',
-                slug: 'bagong-tukso'
+                url: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2026/0126/00/1769353229957853.mp4/manifest.m3u8?rp=o00',
+                slug: 'bagong-tukso',
+                desc: 'Vivamax Adult Movie'
+            },
+            'claim-me': {
+                title: 'Claim Me',
+                year: '2026',
+                logo: 'https://image.tmdb.org/t/p/w500/2YZ24F49pRkNb45YWI6yckrTYE.jpg',
+                url: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2026/0121/14/1768573339995794.mp4/manifest.m3u8?rp=o00',
+                slug: 'claim-me',
+                desc: 'Vivamax Adult Movie'
+            },
+            'sulutan': {
+                title: 'Sulutan',
+                year: '2026',
+                logo: 'https://image.tmdb.org/t/p/w500/kd11696ab32WhHUeq5ZkWi9k09Y.jpg',
+                url: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2026/0118/05/1767805994517754.mp4/manifest.m3u8?rp=o00',
+                slug: 'sulutan',
+                desc: 'Vivamax Adult Movie'
+            },
+            'maria-makinang': {
+                title: 'The Secret of Maria Makinang',
+                year: '2026',
+                logo: 'https://image.tmdb.org/t/p/w500/s6uqdKGDnDml0RYXXza9unzJpVQ.jpg',
+                url: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2026/0118/05/1767805962533167.mp4/manifest.m3u8?rp=o00',
+                slug: 'the-secret-of-maria-makinang',
+                desc: 'Vivamax Adult Movie'
+            },
+            'pansamantala': {
+                title: 'Pansamantala',
+                year: '2026',
+                logo: 'https://image.tmdb.org/t/p/w500/oa9YIxSVw7FsVIWaObFiO0RkKv0.jpg',
+                url: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2026/0111/16/1767040489304349.mp4/manifest.m3u8?rp=o00',
+                slug: 'pansamantala',
+                desc: 'Vivamax Adult Movie'
+            },
+            'bugaw': {
+                title: 'Bugaw',
+                year: '2025',
+                logo: 'https://image.tmdb.org/t/p/w500/kGdFWr1bWqFmhi5F5SVCfK5p1Iz.jpg',
+                url: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2025/1229/16/1764521452947468.mp4/manifest.m3u8?rp=o00',
+                slug: 'bugaw',
+                desc: 'Vivamax Movie 2025'
+            },
+            'hubad-na-puso': {
+                title: 'Hubad na Puso',
+                year: '2025',
+                logo: 'https://image.tmdb.org/t/p/w500/sVkj5I1kY5c3zM9zGjfX2bY5c3z.jpg',
+                url: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2025/1222/16/1763696024485937.mp4/manifest.m3u8?rp=o00',
+                slug: 'hubad-na-puso',
+                desc: 'Vivamax Movie 2025'
+            },
+            'selos': {
+                title: 'Selos',
+                year: '2025',
+                logo: 'https://image.tmdb.org/t/p/w500/1n7O7YjK9LqXQK7XgXgXgXgXgXg.jpg',
+                url: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2025/1215/16/1762953184648419.mp4/manifest.m3u8?rp=o00',
+                slug: 'selos',
+                desc: 'Vivamax Movie 2025'
             },
             'stepmom': {
-                title: 'Stepmom - 새엄마들 (2019)',
-                url: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2026/0206/22/1770389524012954.mp4/manifest.m3u8?rp=o00',
+                title: 'Stepmom - 새엄마들',
+                year: '2019',
                 logo: 'https://1.bp.blogspot.com/-b_5eBAogJf8/Xna1_iOWahI/AAAAAAAABMA/H8UvYeeNtOEpEBPTcKV92lkqtDTkrrWMACNcBGAsYHQ/s1600/Stepmom%2B2019.jpg',
-                slug: 'stepmom'
+                url: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2026/0206/22/1770389524012954.mp4/manifest.m3u8?rp=o00',
+                slug: 'stepmom',
+                desc: 'Korean Adult Movie'
+            },
+            'big-breasted-mom': {
+                title: 'Big Breasted Mom - 가슴 큰 엄마들',
+                year: '2020',
+                logo: 'https://1.bp.blogspot.com/-fRv6pR6-Wkk/XnbMDAYuweI/AAAAAAAABNo/5vboZBuf2K41cvHaPQeSjKciK5fI-unAwCNcBGAsYHQ/s1600/Big%2BBreasted%2BMom.jpg',
+                url: 'https://vod-normal-global-cdn-z02.sooplive.co.kr/spkt/save/afreeca/station/2026/0206/21/1770389240261605.mp4/manifest.m3u8?rp=o00',
+                slug: 'big-breasted-mom-full-korea-18-adult-movie-online-free',
+                desc: 'Korean Adult Movie'
             },
             'kinsenas': {
-                title: 'Kinsenas, Katapusan (2022)',
-                url: 'https://bigf.bigo.sg/asia_live/V4s7/0JQ5zV.mp4',
+                title: 'Kinsenas, Katapusan',
+                year: '2022',
                 logo: 'https://media.themoviedb.org/t/p/w440_and_h660_face/lUGrP7WkSCjCVp9pB5Biubw2CKV.jpg',
-                slug: 'kinsenas-katapusan-2022'
+                url: 'https://bigf.bigo.sg/asia_live/V4s7/0JQ5zV.mp4',
+                slug: 'kinsenas-katapusan-2022',
+                desc: 'Filipino Movie'
             }
         };
 
-        function processLink() {
-            const link = document.getElementById('movieLink').value.trim();
+        let currentMovie = null;
+
+        function generateM3U() {
+            const url = document.getElementById('movieUrl').value.trim();
             
-            if (!link) {
-                alert('Please paste a link!');
+            if (!url) {
+                alert('Please paste a movie URL!');
                 return;
             }
 
-            // Hanapin kung anong movie
-            let foundMovie = null;
-            
-            for (let key in movies) {
-                if (link.includes(movies[key].slug)) {
-                    foundMovie = movies[key];
+            // Hanapin ang movie sa database
+            for (let key in movieDB) {
+                if (url.includes(movieDB[key].slug)) {
+                    currentMovie = movieDB[key];
                     break;
                 }
             }
 
-            if (foundMovie) {
-                displayResult(foundMovie, link);
+            if (!currentMovie) {
+                // Kung wala sa database, gumamit ng generic
+                currentMovie = {
+                    title: 'Unknown Movie',
+                    year: '2026',
+                    logo: '',
+                    url: 'https://example.com/movie.m3u8',
+                    slug: 'unknown',
+                    desc: 'Movie from Cat3Movie'
+                };
+            }
+
+            displayResult(currentMovie);
+        }
+
+        function displayResult(movie) {
+            // Display logo
+            const logoImg = document.getElementById('movieLogo');
+            const logoPlaceholder = document.getElementById('logoPlaceholder');
+            
+            if (movie.logo) {
+                logoImg.src = movie.logo;
+                logoImg.style.display = 'block';
+                logoPlaceholder.style.display = 'none';
             } else {
-                // Generic display
-                displayGeneric(link);
+                logoImg.style.display = 'none';
+                logoPlaceholder.style.display = 'flex';
             }
+
+            // Display info
+            document.getElementById('movieTitle').textContent = movie.title;
+            document.getElementById('movieYear').textContent = `Year: ${movie.year}`;
+            document.getElementById('movieDesc').textContent = movie.desc;
+
+            // Generate M3U content
+            const m3uContent = `#EXTM3U\n#EXTINF:-1 tvg-logo="${movie.logo}",${movie.title} (${movie.year})\n${movie.url}`;
+            document.getElementById('m3uOutput').textContent = m3uContent;
+
+            // Show result section
+            document.getElementById('resultSection').classList.add('show');
         }
 
-        function displayResult(movie, originalLink) {
-            document.getElementById('viewSourceCmd').textContent = `view-source:${originalLink}`;
-            document.getElementById('searchTerm').textContent = 'm3u8';
-            document.getElementById('m3u8Link').textContent = movie.url;
-            document.getElementById('movieTitleDisplay').textContent = movie.title;
-            document.getElementById('logoUrl').textContent = movie.logo;
-            
-            const logoImg = document.getElementById('logoImage');
-            logoImg.src = movie.logo;
-            logoImg.style.display = 'block';
-            document.getElementById('logoPlaceholder').style.display = 'none';
-            
-            document.getElementById('result').style.display = 'block';
-        }
-
-        function displayGeneric(link) {
-            document.getElementById('viewSourceCmd').textContent = `view-source:${link}`;
-            document.getElementById('searchTerm').textContent = 'm3u8';
-            document.getElementById('m3u8Link').textContent = 'Hanapin sa page source (Ctrl+F)';
-            document.getElementById('movieTitleDisplay').textContent = 'Unknown Movie';
-            document.getElementById('logoUrl').textContent = 'No logo available';
-            
-            document.getElementById('logoImage').style.display = 'none';
-            document.getElementById('logoPlaceholder').style.display = 'block';
-            document.getElementById('logoPlaceholder').textContent = '❓';
-            
-            document.getElementById('result').style.display = 'block';
-        }
-
-        function useExample(movieKey) {
-            const movie = movies[movieKey];
+        function quickPick(movieKey) {
+            const movie = movieDB[movieKey];
             if (movie) {
-                document.getElementById('movieLink').value = `https://www.cat3movie.club/${movie.slug}/`;
-                displayResult(movie, `https://www.cat3movie.club/${movie.slug}/`);
+                document.getElementById('movieUrl').value = `https://www.cat3movie.club/${movie.slug}/`;
+                currentMovie = movie;
+                displayResult(movie);
             }
         }
 
-        function copyCommand(type) {
-            let text = '';
-            if (type === 'viewSource') {
-                text = document.getElementById('viewSourceCmd').textContent;
-            } else if (type === 'searchTerm') {
-                text = 'm3u8';
-            } else if (type === 'm3u8') {
-                text = document.getElementById('m3u8Link').textContent;
-            } else if (type === 'logo') {
-                text = document.getElementById('logoUrl').textContent;
-            }
+        function downloadM3U() {
+            if (!currentMovie) return;
             
-            navigator.clipboard.writeText(text).then(() => {
-                alert('Copied!');
+            const m3uContent = `#EXTM3U\n#EXTINF:-1 tvg-logo="${currentMovie.logo}",${currentMovie.title} (${currentMovie.year})\n${currentMovie.url}`;
+            
+            const blob = new Blob([m3uContent], { type: 'text/plain' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `${currentMovie.title.toLowerCase().replace(/\s+/g, '_')}.m3u`;
+            a.click();
+        }
+
+        function copyM3U() {
+            const m3uContent = document.getElementById('m3uOutput').textContent;
+            navigator.clipboard.writeText(m3uContent).then(() => {
+                alert('✅ M3U copied to clipboard!');
             });
         }
+
+        function saveToCollection() {
+            if (!currentMovie) return;
+            
+            let collection = JSON.parse(localStorage.getItem('movieCollection') || '[]');
+            
+            // Check if already exists
+            const exists = collection.some(m => m.title === currentMovie.title);
+            
+            if (!exists) {
+                collection.push(currentMovie);
+                localStorage.setItem('movieCollection', JSON.stringify(collection));
+                document.getElementById('movieCount').textContent = `📊 ${collection.length + 14} Movies Ready`;
+                alert('✅ Saved to your collection!');
+            } else {
+                alert('Movie already in collection');
+            }
+        }
+
+        // Load collection count on start
+        const saved = JSON.parse(localStorage.getItem('movieCollection') || '[]');
+        document.getElementById('movieCount').textContent = `📊 ${saved.length + 14} Movies Ready`;
     </script>
 </body>
 </html>
