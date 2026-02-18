@@ -1,151 +1,182 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Cat3Movie M3U8 Browser</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cat3Movie M3U Generator</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: system-ui, -apple-system, sans-serif;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
         }
-        .browser-container {
+        .container {
             max-width: 1200px;
-            margin: 20px auto;
-            background: #1a1a2e;
+            margin: 0 auto;
+        }
+        /* Header */
+        .header {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
             border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.2);
         }
-        .browser-header {
-            background: #16213e;
-            padding: 15px 20px;
-            border-bottom: 2px solid #e94560;
-        }
-        .browser-title {
-            color: #fff;
-            font-size: 20px;
-            font-weight: bold;
+        .header h1 {
+            color: white;
+            font-size: 28px;
             margin-bottom: 10px;
         }
+        .header p {
+            color: rgba(255,255,255,0.8);
+        }
+        
+        /* URL Bar */
         .url-bar {
             display: flex;
             gap: 10px;
-            align-items: center;
-            background: #0f3460;
-            border-radius: 8px;
-            padding: 5px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
         }
         .url-input {
             flex: 1;
-            padding: 12px 15px;
-            background: #1a1a2e;
-            border: 1px solid #4a4a6a;
-            border-radius: 5px;
-            color: #fff;
-            font-size: 15px;
+            padding: 15px 20px;
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 10px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            font-size: 16px;
+            min-width: 250px;
+        }
+        .url-input::placeholder {
+            color: rgba(255,255,255,0.5);
         }
         .url-input:focus {
             outline: none;
-            border-color: #e94560;
+            border-color: #4CAF50;
         }
         .nav-btn {
-            background: #e94560;
+            padding: 15px 30px;
+            background: #4CAF50;
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
+            border-radius: 10px;
+            font-size: 16px;
             font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
         }
         .nav-btn:hover {
-            background: #ff6b8b;
+            background: #45a049;
+            transform: translateY(-2px);
         }
+        
+        /* Proxy Selector */
         .proxy-selector {
             display: flex;
             gap: 10px;
-            padding: 10px 20px;
-            background: #0f3460;
-            border-top: 1px solid #4a4a6a;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
         }
         .proxy-btn {
-            background: #1a1a2e;
-            color: #94a3b8;
-            border: 1px solid #4a4a6a;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
             padding: 8px 15px;
             border-radius: 5px;
             cursor: pointer;
             font-size: 13px;
+            transition: 0.3s;
+        }
+        .proxy-btn:hover {
+            background: rgba(255,255,255,0.2);
         }
         .proxy-btn.active {
-            background: #e94560;
-            color: white;
-            border-color: #e94560;
+            background: #4CAF50;
+            border-color: #4CAF50;
         }
-        .browser-content {
+        
+        /* Main Content */
+        .main-content {
             display: flex;
-            height: 600px;
+            gap: 20px;
+            flex-wrap: wrap;
         }
-        .source-panel {
-            width: 50%;
-            background: #0f0f1f;
-            border-right: 2px solid #4a4a6a;
-            display: flex;
-            flex-direction: column;
+        .panel {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.2);
+            overflow: hidden;
         }
         .panel-header {
-            background: #16213e;
-            padding: 10px 15px;
-            color: #e94560;
+            background: rgba(0,0,0,0.3);
+            padding: 15px 20px;
+            color: white;
             font-weight: bold;
-            border-bottom: 1px solid #4a4a6a;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
         }
-        .source-content {
-            flex: 1;
-            padding: 15px;
+        .panel-content {
+            padding: 20px;
+            max-height: 500px;
             overflow: auto;
+        }
+        
+        /* Source Panel */
+        .source-content {
             font-family: monospace;
             font-size: 12px;
             color: #0ff;
-            background: #0a0a1a;
             white-space: pre-wrap;
             line-height: 1.5;
         }
-        .extract-panel {
-            width: 50%;
-            background: #0f0f1f;
-            display: flex;
-            flex-direction: column;
+        .highlight {
+            background: #4ade80;
+            color: black;
+            padding: 2px 4px;
+            border-radius: 3px;
         }
-        .extract-content {
-            flex: 1;
-            padding: 15px;
-            overflow: auto;
+        .highlight-m3u8 {
+            background: #ff6b6b;
+            color: white;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-weight: bold;
         }
+        
+        /* Extract Panel */
         .m3u8-found {
-            background: #16213e;
+            background: rgba(74, 222, 128, 0.1);
             border-left: 4px solid #4ade80;
             padding: 15px;
             margin-bottom: 15px;
             border-radius: 5px;
         }
-        .m3u8-link {
-            color: #4ade80;
-            font-family: monospace;
-            font-size: 12px;
-            word-break: break-all;
-            margin: 10px 0;
-            padding: 10px;
-            background: #0a0a1a;
-            border-radius: 5px;
-        }
         .logo-found {
-            background: #16213e;
+            background: rgba(251, 191, 36, 0.1);
             border-left: 4px solid #fbbf24;
             padding: 15px;
             margin-bottom: 15px;
             border-radius: 5px;
+        }
+        .m3u8-link {
+            background: rgba(0,0,0,0.3);
+            color: #4ade80;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            word-break: break-all;
+            margin: 10px 0;
         }
         .logo-preview {
             max-width: 150px;
@@ -154,19 +185,45 @@
             border-radius: 8px;
             border: 2px solid #fbbf24;
         }
-        .btn-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-            flex-wrap: wrap;
+        
+        /* M3U Output */
+        .m3u-output {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
         }
+        .m3u-header {
+            color: #4CAF50;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .m3u-content {
+            background: rgba(0,0,0,0.5);
+            color: #ffd700;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            word-break: break-all;
+            max-height: 150px;
+            overflow: auto;
+            white-space: pre-wrap;
+        }
+        
+        /* Buttons */
         .btn {
-            padding: 8px 15px;
+            padding: 10px 20px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 600;
+            margin: 5px;
+            transition: 0.3s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
         }
         .btn-primary {
             background: #3b82f6;
@@ -180,77 +237,102 @@
             background: #f59e0b;
             color: white;
         }
-        .status-bar {
-            background: #16213e;
-            padding: 8px 15px;
-            color: #94a3b8;
-            font-size: 13px;
-            border-top: 1px solid #4a4a6a;
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
         }
-        .error-message {
-            color: #ef4444;
-            background: #450a0a;
-            padding: 10px;
-            border-radius: 5px;
+        
+        /* Status Bar */
+        .status-bar {
+            background: rgba(0,0,0,0.3);
+            padding: 10px 20px;
+            border-radius: 10px;
+            color: rgba(255,255,255,0.8);
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        
+        /* Manual Mode */
+        .manual-area {
+            width: 100%;
+            height: 300px;
+            background: rgba(0,0,0,0.3);
+            color: #0ff;
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 15px;
+            border-radius: 10px;
+            font-family: monospace;
+            font-size: 12px;
             margin: 10px 0;
-            border-left: 4px solid #ef4444;
         }
     </style>
 </head>
 <body>
-    <div class="browser-container">
-        <div class="browser-header">
-            <div class="browser-title">🎬 Cat3Movie M3U8 Browser</div>
-            <div class="url-bar">
-                <span style="color:#94a3b8;">view-source:</span>
-                <input type="text" class="url-input" id="urlInput" value="https://www.cat3movie.club/sweet-release-vivamax/">
-                <button class="nav-btn" onclick="loadPage()">GO</button>
-            </div>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🎬 Cat3Movie M3U Generator</h1>
+            <p>I-paste ang movie link at auto-generate ng M3U file kasama ang logo</p>
         </div>
 
+        <!-- URL Bar -->
+        <div class="url-bar">
+            <input type="text" class="url-input" id="urlInput" placeholder="https://www.cat3movie.club/movie-name/" value="https://www.cat3movie.club/bulong-ng-laman/">
+            <button class="nav-btn" onclick="loadPage()">GENERATE M3U</button>
+        </div>
+
+        <!-- Proxy Selector -->
         <div class="proxy-selector" id="proxySelector">
             <button class="proxy-btn active" onclick="setProxy('corsproxy')">🔄 CORS Proxy</button>
             <button class="proxy-btn" onclick="setProxy('allorigins')">🌐 AllOrigins</button>
             <button class="proxy-btn" onclick="setProxy('thingproxy')">🔧 ThingProxy</button>
-            <button class="proxy-btn" onclick="setProxy('cors anywhere')">📡 CORS Anywhere</button>
         </div>
-        
-        <div class="browser-content">
-            <div class="source-panel">
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Left Panel: View Source -->
+            <div class="panel">
                 <div class="panel-header">
-                    📄 VIEW SOURCE | <span style="color:#4ade80;">Ctrl+F: "m3u8" o "sooplive"</span>
+                    📄 VIEW SOURCE | <span style="color: #4ade80;">Ctrl+F: "m3u8"</span>
                 </div>
-                <div class="source-content" id="sourceContent">
-                    I-paste ang URL at i-click GO
+                <div class="panel-content">
+                    <div class="source-content" id="sourceContent">
+                        I-paste ang URL at i-click GENERATE M3U
+                    </div>
                 </div>
             </div>
-            
-            <div class="extract-panel">
+
+            <!-- Right Panel: Extract & Generate -->
+            <div class="panel">
                 <div class="panel-header">
-                    🔍 AUTO-EXTRACTED | <span style="color:#fbbf24;">M3U8 + LOGO</span>
+                    🔍 EXTRACT & GENERATE | <span style="color: #fbbf24;">M3U8 + LOGO = M3U</span>
                 </div>
-                <div class="extract-content" id="extractContent">
-                    <div style="color:#94a3b8; text-align:center; margin-top:50px;">
+                <div class="panel-content" id="extractContent">
+                    <div style="color: rgba(255,255,255,0.5); text-align: center; padding: 50px 20px;">
                         ⚡ Maghintay habang naglo-load...
                     </div>
                 </div>
             </div>
         </div>
-        
+
+        <!-- Status Bar -->
         <div class="status-bar" id="statusBar">
-            ✅ Ready | Piliin ang proxy at i-click GO
+            ✅ Ready | I-paste ang movie link at i-click GENERATE M3U
         </div>
     </div>
 
     <script>
         let currentProxy = 'corsproxy';
-        
-        // List of working proxies
+        let currentM3U8 = '';
+        let currentLogo = '';
+        let currentTitle = '';
+
         const proxies = {
             'corsproxy': 'https://corsproxy.io/?',
             'allorigins': 'https://api.allorigins.win/raw?url=',
-            'thingproxy': 'https://thingproxy.freeboard.io/fetch/',
-            'cors anywhere': 'https://cors-anywhere.herokuapp.com/'
+            'thingproxy': 'https://thingproxy.freeboard.io/fetch/'
         };
 
         function setProxy(proxy) {
@@ -259,7 +341,7 @@
                 btn.classList.remove('active');
             });
             event.target.classList.add('active');
-            document.getElementById('statusBar').innerHTML = `✅ Proxy set to: ${proxy}`;
+            updateStatus(`✅ Proxy set to: ${proxy}`);
         }
 
         async function loadPage() {
@@ -270,20 +352,16 @@
                 return;
             }
 
-            // Update status
-            document.getElementById('statusBar').innerHTML = '⏳ Loading page source...';
+            updateStatus('⏳ Loading page source...');
             document.getElementById('sourceContent').innerHTML = '⏳ Fetching page source...';
-            document.getElementById('extractContent').innerHTML = '<div style="color:#94a3b8; text-align:center; margin-top:50px;">⏳ Extracting...</div>';
+            document.getElementById('extractContent').innerHTML = '<div style="color: rgba(255,255,255,0.5); text-align: center; padding: 50px 20px;">⏳ Extracting M3U8 and logo...</div>';
 
-            // Try each proxy until one works
+            // Try proxies
             let html = null;
-            let error = null;
             
-            const proxyList = ['corsproxy', 'allorigins', 'thingproxy'];
-            
-            for (let proxy of proxyList) {
+            for (let proxy of ['corsproxy', 'allorigins', 'thingproxy']) {
                 try {
-                    document.getElementById('statusBar').innerHTML = `⏳ Trying ${proxy}...`;
+                    updateStatus(`⏳ Trying ${proxy}...`);
                     let proxyUrl = proxies[proxy] + encodeURIComponent(url);
                     
                     let response = await fetch(proxyUrl, {
@@ -294,164 +372,172 @@
                     
                     if (response.ok) {
                         html = await response.text();
-                        document.getElementById('statusBar').innerHTML = `✅ Loaded using ${proxy}`;
+                        updateStatus(`✅ Loaded using ${proxy}`);
                         break;
                     }
                 } catch (e) {
-                    error = e;
                     console.log(`${proxy} failed:`, e);
                 }
             }
 
             if (html) {
                 displaySource(html);
-                extractAll(html, url);
+                extractAll(html);
             } else {
-                // Fallback: try direct fetch with no-cors
-                try {
-                    let response = await fetch(url, { mode: 'no-cors' });
-                    document.getElementById('sourceContent').innerHTML = '⚠️ Cannot view source due to CORS. Try these alternatives:';
-                    document.getElementById('sourceContent').innerHTML += '<br><br>1. I-open sa bagong tab: <b>view-source:' + url + '</b>';
-                    document.getElementById('sourceContent').innerHTML += '<br><br>2. I-download ang page at i-upload dito ⬇️';
-                    document.getElementById('sourceContent').innerHTML += '<br><br><input type="file" id="htmlFile" accept=".html,.htm" onchange="loadHTMLFile(event)">';
-                    
-                    document.getElementById('extractContent').innerHTML = `
-                        <div class="error-message">
-                            ❌ Failed to load page automatically<br><br>
-                            <b>Manual Steps:</b><br>
-                            1. I-open sa bagong tab: <b>view-source:${url}</b><br>
-                            2. Ctrl+A, Ctrl+C (copy all)<br>
-                            3. I-paste dito 👇
-                        </div>
-                        <textarea id="manualPaste" style="width:100%; height:200px; background:#0a0a1a; color:#0ff; border:1px solid #4a4a6a; padding:10px; border-radius:5px;" placeholder="I-paste ang HTML source dito..."></textarea>
-                        <button class="btn btn-primary" style="margin-top:10px;" onclick="processManualPaste()">Process HTML</button>
-                    `;
-                    
-                    document.getElementById('statusBar').innerHTML = '❌ Using manual mode';
-                } catch (e) {
-                    showManualMode(url);
-                }
-            }
-        }
-
-        function showManualMode(url) {
-            document.getElementById('sourceContent').innerHTML = `
-                <div style="color:#ef4444;">❌ Cannot auto-fetch page</div><br>
-                <b>Gawin mo ito:</b><br>
-                1. I-right click sa page → View Page Source<br>
-                2. Ctrl+A, Ctrl+C (copy lahat)<br>
-                3. I-paste sa box sa kanan
-            `;
-            
-            document.getElementById('extractContent').innerHTML = `
-                <textarea id="manualSource" style="width:100%; height:300px; background:#0a0a1a; color:#0ff; border:1px solid #4a4a6a; padding:10px; border-radius:5px; font-family:monospace; font-size:12px;" placeholder="I-paste ang HTML source dito..."></textarea>
-                <button class="btn btn-primary" style="margin-top:10px; width:100%;" onclick="processManualSource()">🔍 EXTRACT M3U8 & LOGO</button>
-            `;
-            
-            document.getElementById('statusBar').innerHTML = '📝 Manual mode - I-paste ang source';
-        }
-
-        function processManualSource() {
-            let html = document.getElementById('manualSource').value;
-            if (html) {
-                displaySource(html);
-                extractAll(html, 'manual');
-                document.getElementById('statusBar').innerHTML = '✅ Manual source processed';
+                // Manual mode
+                showManualMode(url);
             }
         }
 
         function displaySource(html) {
-            // Format HTML for display
+            // Format HTML with highlights
             let formatted = html
                 .replace(/</g, '&lt;')
                 .replace(/>/g, '&gt;')
-                .replace(/(https?:[^"'\s]+\.m3u8[^"'\s]*)/g, '<span style="background:#4ade80; color:#000; padding:2px; border-radius:3px;">$1</span>')
-                .replace(/(https?:[^"'\s]*sooplive[^"'\s]*)/g, '<span style="background:#fbbf24; color:#000; padding:2px; border-radius:3px;">$1</span>')
-                .replace(/(sources:[^,]+)/g, '<span style="background:#e94560; color:#fff; padding:2px; border-radius:3px;">$1</span>');
+                .replace(/(https?:[^"'\s]+\.m3u8[^"'\s]*)/g, '<span class="highlight-m3u8">$1</span>')
+                .replace(/(https?:[^"'\s]*sooplive[^"'\s]*)/g, '<span class="highlight">$1</span>')
+                .replace(/("file":"[^"]+")/g, '<span class="highlight">$1</span>');
             
             document.getElementById('sourceContent').innerHTML = formatted;
         }
 
-        function extractAll(html, source) {
+        function extractAll(html) {
             let extractDiv = document.getElementById('extractContent');
             let output = '';
 
-            // Look for JW Player sources
-            let jwPlayerMatches = html.match(/sources:\s*\[\s*\{[^}]*file:\s*["']([^"']+)["']/g);
-            
-            // Extract M3U8 links
-            let m3u8Pattern = /(https?:[^"'\s]+\.m3u8[^"'\s]*)/g;
-            let m3u8Matches = [...html.matchAll(m3u8Pattern)];
-            let uniqueM3u8 = [...new Set(m3u8Matches.map(m => m[0]))];
-            
-            if (uniqueM3u8.length > 0) {
+            // Reset current values
+            currentM3U8 = '';
+            currentLogo = '';
+            currentTitle = '';
+
+            // 1. Extract M3U8
+            let m3u8Patterns = [
+                /file:\s*["']([^"']+\.m3u8[^"']*)["']/,
+                /(https?:[^"'\s]+sooplive[^"'\s]+\.m3u8[^"'\s]*)/
+            ];
+
+            for (let pattern of m3u8Patterns) {
+                let match = html.match(pattern);
+                if (match && match[1]) {
+                    currentM3U8 = match[1];
+                    break;
+                }
+            }
+
+            if (currentM3U8) {
                 output += '<div class="m3u8-found">';
                 output += '<div style="color:#4ade80; font-weight:bold; margin-bottom:10px;">🎥 M3U8 FOUND</div>';
-                
-                uniqueM3u8.forEach((link, index) => {
-                    output += `<div class="m3u8-link">${link}</div>`;
-                });
-                
-                output += '<div class="btn-group">';
-                output += `<button class="btn btn-primary" onclick="copyText('${uniqueM3u8[0]}')">📋 Copy First M3U8</button>`;
-                output += `<button class="btn btn-success" onclick="downloadM3U('${uniqueM3u8[0]}')">⬇️ Download .m3u</button>`;
-                output += '</div>';
+                output += `<div class="m3u8-link">${currentM3U8}</div>`;
                 output += '</div>';
             } else {
                 output += '<div class="m3u8-found" style="border-left-color:#ef4444;">';
                 output += '<div style="color:#ef4444; font-weight:bold;">❌ NO M3U8 FOUND</div>';
-                output += '<div style="color:#94a3b8; margin-top:10px;">Try searching: m3u8, manifest, playlist, sources, file:</div>';
+                output += '<div style="color:rgba(255,255,255,0.5); margin-top:10px;">Try searching manually: "file:", "sources:", "m3u8"</div>';
                 output += '</div>';
             }
 
-            // Extract Logo (TMDB)
-            let tmdbPattern = /https:\/\/image\.tmdb\.org\/[^"'\s]+/g;
-            let tmdbMatches = [...html.matchAll(tmdbPattern)];
-            let uniqueTmdb = [...new Set(tmdbMatches.map(m => m[0]))];
+            // 2. Extract Logo (TMDB)
+            let logoPattern = /https:\/\/image\.tmdb\.org\/[^"'\s]+/g;
+            let logos = html.match(logoPattern);
             
-            if (uniqueTmdb.length > 0) {
+            if (logos && logos.length > 0) {
+                currentLogo = logos[0];
                 output += '<div class="logo-found">';
-                output += '<div style="color:#fbbf24; font-weight:bold; margin-bottom:10px;">🖼️ TMDB LOGO FOUND</div>';
-                output += `<img src="${uniqueTmdb[0]}" class="logo-preview" onerror="this.style.display='none'">`;
-                output += `<div class="m3u8-link" style="color:#fbbf24;">${uniqueTmdb[0]}</div>`;
-                output += `<button class="btn btn-warning" onclick="copyText('${uniqueTmdb[0]}')">📋 Copy Logo URL</button>`;
+                output += '<div style="color:#fbbf24; font-weight:bold; margin-bottom:10px;">🖼️ LOGO FOUND</div>';
+                output += `<img src="${currentLogo}" class="logo-preview" onerror="this.style.display='none'">`;
+                output += `<div class="m3u8-link" style="color:#fbbf24;">${currentLogo}</div>`;
                 output += '</div>';
             }
 
-            // Try to get title
+            // 3. Extract Title
             let titleMatch = html.match(/<title>(.+?)<\/title>/);
             if (titleMatch) {
-                output += '<div style="background:#16213e; padding:15px; border-radius:5px; margin-top:15px;">';
-                output += '<div style="color:#94a3b8; margin-bottom:5px;">📌 Movie Title</div>';
-                output += `<div style="color:#fff; font-weight:bold;">${titleMatch[1]}</div>`;
+                currentTitle = titleMatch[1].replace(' | Cat3Movie', '').trim();
+                output += '<div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:5px; margin-top:15px;">';
+                output += '<div style="color:rgba(255,255,255,0.5); margin-bottom:5px;">📌 Movie Title</div>';
+                output += `<div style="color:#fff; font-weight:bold;">${currentTitle}</div>`;
+                output += '</div>';
+            }
+
+            // 4. Generate M3U (kung may m3u8 at logo)
+            if (currentM3U8 && currentLogo) {
+                let m3uContent = `#EXTM3U\n#EXTINF:-1 tvg-logo="${currentLogo}",${currentTitle || 'Movie'}\n${currentM3U8}`;
+                
+                output += '<div class="m3u-output">';
+                output += '<div class="m3u-header">📀 GENERATED M3U FILE</div>';
+                output += `<div class="m3u-content" id="m3uContent">${m3uContent}</div>`;
+                output += '<div class="btn-group">';
+                output += '<button class="btn btn-primary" onclick="downloadM3U()">⬇️ DOWNLOAD .m3u</button>';
+                output += '<button class="btn btn-success" onclick="copyM3U()">📋 COPY M3U</button>';
+                output += '</div>';
+                output += '</div>';
+            } else if (currentM3U8) {
+                // M3U8 lang meron, walang logo
+                let m3uContent = `#EXTM3U\n#EXTINF:-1,${currentTitle || 'Movie'}\n${currentM3U8}`;
+                
+                output += '<div class="m3u-output">';
+                output += '<div class="m3u-header">📀 GENERATED M3U FILE (no logo)</div>';
+                output += `<div class="m3u-content" id="m3uContent">${m3uContent}</div>`;
+                output += '<div class="btn-group">';
+                output += '<button class="btn btn-primary" onclick="downloadM3U()">⬇️ DOWNLOAD .m3u</button>';
+                output += '<button class="btn btn-success" onclick="copyM3U()">📋 COPY M3U</button>';
+                output += '</div>';
                 output += '</div>';
             }
 
             extractDiv.innerHTML = output;
         }
 
-        function copyText(text) {
-            navigator.clipboard.writeText(text);
-            document.getElementById('statusBar').innerHTML = '✅ Copied to clipboard!';
+        function showManualMode(url) {
+            document.getElementById('sourceContent').innerHTML = `
+                <div style="color:#ef4444; margin-bottom:10px;">❌ Cannot auto-fetch page</div>
+                <div style="color:rgba(255,255,255,0.5); margin-bottom:15px;">Gawin ito:</div>
+                <ol style="color:rgba(255,255,255,0.8); margin-left:20px;">
+                    <li>I-open sa bagong tab: <b>view-source:${url}</b></li>
+                    <li>Ctrl+A, Ctrl+C (copy lahat)</li>
+                    <li>I-paste sa box sa ibaba</li>
+                </ol>
+            `;
+            
+            document.getElementById('extractContent').innerHTML = `
+                <textarea class="manual-area" id="manualSource" placeholder="I-paste ang HTML source dito..."></textarea>
+                <button class="btn btn-primary" style="width:100%;" onclick="processManualSource()">🔍 GENERATE M3U FROM SOURCE</button>
+            `;
+            
+            updateStatus('📝 Manual mode - I-paste ang source');
         }
 
-        function downloadM3U(m3u8Link) {
-            let title = document.querySelector('.m3u8-found + .logo-found') ? 'movie' : 'cat3movie';
-            let m3uContent = `#EXTM3U\n#EXTINF:-1,${title}\n${m3u8Link}`;
+        function processManualSource() {
+            let html = document.getElementById('manualSource').value;
+            if (html) {
+                displaySource(html);
+                extractAll(html);
+                updateStatus('✅ Manual source processed');
+            }
+        }
+
+        function downloadM3U() {
+            let m3uContent = document.getElementById('m3uContent').textContent;
+            let filename = (currentTitle || 'movie').toLowerCase().replace(/[^a-z0-9]+/g, '_') + '.m3u';
             
             let blob = new Blob([m3uContent], {type: 'text/plain'});
             let a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
-            a.download = 'movie.m3u';
+            a.download = filename;
             a.click();
             
-            document.getElementById('statusBar').innerHTML = '✅ M3U file downloaded!';
+            updateStatus('✅ M3U file downloaded');
         }
 
-        // Load default page
-        window.onload = function() {
-            // loadPage();
-        };
+        function copyM3U() {
+            let m3uContent = document.getElementById('m3uContent').textContent;
+            navigator.clipboard.writeText(m3uContent);
+            updateStatus('✅ M3U copied to clipboard');
+        }
+
+        function updateStatus(message) {
+            document.getElementById('statusBar').innerHTML = message;
+        }
     </script>
 </body>
 </html>
